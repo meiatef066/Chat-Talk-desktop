@@ -1,0 +1,296 @@
+/* Primary Background */
+.bg-primary {
+    -fx-background-color: linear-gradient(to right, #0f1921, #2d4755);
+    -fx-text-fill: white; /* For text color */
+}
+
+/* Secondary Background */
+.bg-secondary {
+    -fx-background-color: linear-gradient(to right, #6c757d, #343a40);
+    -fx-text-fill: white;
+}
+
+/* Success Background */
+.bg-success {
+    -fx-background-color: linear-gradient(to right, #28a745, #1e7e34);
+    -fx-text-fill: white;
+}
+
+/* Danger Background */
+.bg-danger {
+    -fx-background-color: linear-gradient(to right, #dc3545, #a71d2a);
+    -fx-text-fill: white;
+}
+
+/* Warning Background */
+.bg-warning {
+    -fx-background-color: linear-gradient(to right, #ffc107, #e0a800);
+    -fx-text-fill: black;
+}
+
+/* Info Background */
+.bg-info {
+    -fx-background-color: linear-gradient(to right, #2f0e6a, #170439);
+    -fx-text-fill: white;
+}
+
+/* Light Background */
+.bg-light {
+    -fx-background-color: linear-gradient(to right, #f8f9fa, #e2e6ea);
+    -fx-text-fill: black;
+}
+.bg-left-sidebar {
+    -fx-border-color: #0086c8;
+    -fx-border-radius: 10px;
+    -fx-position-shape: round;
+
+    /* Add shadow for the border */
+    -fx-effect: dropshadow(gaussian,  #0086c8, 4, 0, 0, 0);
+
+}
+.bg-product-item{
+    -fx-border-radius:10;
+    /*-fx-border:1px solid #14303e;*/
+
+}
+.border-main{
+    -fx-border-color: #99763a;
+    -fx-border-width: 5px;
+    -fx-border-style: solid;
+}
+
+/*-------------------- Text -------------------------*/
+/* Text Colors */
+/* Headline Text (Largest) */
+.text-primary {
+    -fx-text-fill: #ffffff; /* Blue */
+    -fx-font-size: 32px; /* Large Headline */
+    -fx-font-family: "Arial", sans-serif;
+    -fx-font-weight: bold; /* Corrected to bold */
+}
+
+/* Subheading Text */
+.text-secondary {
+    -fx-text-fill: #fff; /* Gray */
+    -fx-font-size: 18px; /* Subheading */
+    -fx-font-family: "Arial", sans-serif;
+}
+
+/* Body Text */
+.text-body {
+    -fx-text-fill: #212529; /* Standard Body Text Color */
+    -fx-font-size: 16px; /* Default body text size */
+    -fx-font-family: "Arial", sans-serif;
+}
+
+/* Muted or Small Text */
+.text-muted {
+    -fx-text-fill: #ffffff; /* Muted Text (Lighter Gray) */
+    -fx-font-size: 14px; /* Small Text */
+    -fx-font-family: "Arial", sans-serif;
+}
+.text-description {
+    -fx-text-fill: #ffffff; /* Muted Text (Lighter Gray) */
+    -fx-font-size: 14px; /* Small Text */
+    -fx-font-family: "Arial", sans-serif;
+    -fx-text-alignment: center;
+}
+/* Tiny Text for Footnotes or Placeholder */
+.text-tiny {
+    -fx-text-fill: #6c757d; /* Light Gray */
+    -fx-font-size: 12px; /* Smallest Text */
+    -fx-font-family: "Arial", sans-serif;
+}
+
+/* Disabled or Subtle Text */
+.text-disabled {
+    -fx-text-fill: rgba(0, 0, 0, 0.5); /* Semi-transparent Black */
+    -fx-font-size: 14px;
+    -fx-font-family: "Arial", sans-serif;
+}
+.hyperlink {
+    -fx-text-fill: #00eaff;
+    -fx-underline: true;
+    -fx-font-size: 14px;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+}
+
+.hyperlink:hover {
+    -fx-text-fill: #096c77;
+}
+
+.hyperlink:pressed {
+    -fx-text-fill: rgb(161, 180, 197);
+}
+
+/*--------------------- Buttons ----------------------*/
+/* General button styling */
+.button {
+    display: inline-block;
+    font-size: 16px;
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+    cursor: pointer;
+    -fx-border-widthborder: 1px ;
+    -fx-border-color: white;
+    -fx-border-style: solid;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+/* Success button (green) */
+.button-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: #fff;
+}
+
+/*---------------------- Google button -----------------------------*/
+.button-google {
+    -fx-background-color: transparent; /* Set background to transparent */
+    -fx-border-color: white; /* White border */
+    -fx-border-width: 1px; /* Set border width */
+    -fx-border-style: solid; /* Solid border style */
+    /*-fx-background-image: url('classpath:/images/icons/icons8-google-48.png'); !* Classpath resource for image *!*/
+    -fx-background-repeat: no-repeat; /* Ensure image doesn't repeat */
+    -fx-background-size: 20px 20px; /* Resize image to fit button */
+    -fx-padding: 5px 10px 5px 30px; /* Padding to make space for the icon */
+    -fx-text-fill: white; /* Text color (white) */
+    -fx-font-size: 16px; /* Font size */
+}
+
+.button-google:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.1); /* Slight background color on hover */
+}
+
+.button-google:pressed {
+    -fx-background-color: rgba(255, 255, 255, 0.2); /* Darker background color on press */
+}
+
+/*--------------------------------- Main button ---------------------*/
+.button-primary {
+    -fx-background-color: transparent; /* Blue background color */
+    -fx-border-radius: 6px; /* Matching border radius */
+    -fx-text-fill: white; /* White text color */
+    -fx-font-size: 14px; /* Font size */
+    -fx-border-width: 1px;
+    -fx-border-style: solid;
+    -fx-border-color: #fff;
+    -fx-cursor: hand; /* Change cursor to hand when hovering */
+}
+
+.button-primary:hover {
+    -fx-background-color: #14303e; /* Darker blue on hover */
+    -fx-border-color: #ffffff; /* Even darker border on hover */
+}
+
+.button-primary:pressed {
+    -fx-background-color: #2d4755; /* Dark background when pressed */
+    -fx-border-color: #ffffff; /* Darker border when pressed */
+}
+
+/* Danger button (red) */
+.button-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
+}
+
+.button-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+/* Warning button (yellow) */
+.button-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #fff;
+}
+
+.button-warning:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+/* Info button (cyan) */
+.button-info {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+    color: #fff;
+}
+
+.button-info:hover {
+    background-color: #138496;
+    border-color: #117a8b;
+}
+
+/* Light button (light gray) */
+.button-light {
+    background-color: #f8f9fa;
+    border-color: #f8f9fa;
+    color: #333;
+}
+
+.button-light:hover {
+    background-color: #e2e6ea;
+    border-color: #dae0e5;
+}
+
+/* Disabled button */
+.button:disabled {
+    background-color: #cccccc;
+    border-color: #b3b3b3;
+    color: #666666;
+    cursor: not-allowed;
+}
+
+/*-------------------*/
+.search-input {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #0077cc;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 8 12;
+    -fx-font-size: 14px;
+    -fx-text-fill: #333;
+    -fx-prompt-text-fill: #888;
+}
+.search-input:focused {
+    -fx-border-color: #00aa88;
+    -fx-effect: dropshadow(two-pass-box, rgba(0,170,136,0.3), 6, 0.0, 0, 2);
+}
+
+/*   chat item       */
+.chat-item {
+    -fx-padding: 10 15;
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: #e0e0e0;
+    -fx-transition: background-color 0.3s;
+}
+
+.chat-item:hover {
+    -fx-background-color: #f5f5f5;
+}
+
+.avatar {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0.1, 0, 0);
+    -fx-smooth: true;
+}
+
+.chat-username {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2d2d2d;
+}
+
+.chat-preview {
+    -fx-font-size: 13px;
+    -fx-text-fill: #7a7a7a;
+}

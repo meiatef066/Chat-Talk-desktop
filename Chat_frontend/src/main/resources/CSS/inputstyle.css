@@ -1,0 +1,57 @@
+/* Input field styling */
+.input-field {
+    -fx-background-color: transparent; /* Transparent background */
+    -fx-border-width: 0 0 1px 0; /* Bottom border only */
+    -fx-border-color: #3b4b50; /* White border */
+    -fx-text-fill: #ffffff; /* Text color */
+    -fx-font-size: 14px; /* Font size */
+}
+
+/* When the input field has focus */
+.input-field:focused {
+    -fx-border-color: #0086c8; /* Change border color when focused */
+}
+
+/* Input data text color */
+.input-field .text {
+    -fx-text-fill: #fff; /* Input data text color */
+}
+
+/* _________________________Hyper Link style_______________________________*/
+/* Hyperlink Style */
+.hyperlink {
+    -fx-text-fill: #4da0ff; /* Default link color (blue) */
+    -fx-font-size: 12px; /* Font size */
+    -fx-font-family: "Arial", sans-serif; /* Font family */
+    -fx-cursor: hand; /* Change cursor to hand when hovering */
+}
+
+/* Hover effect for Hyperlink */
+.hyperlink:hover {
+    -fx-text-fill: #1c5895; /* Darker blue on hover */
+}
+/* Remove the outline around the hyperlink when clicked */
+.hyperlink:focused {
+    -fx-focus-color: transparent; /* Remove the focus color */
+    -fx-faint-focus-color: transparent; /* Remove the faint focus color */
+}
+/* Visited hyperlink style */
+.hyperlink:visited {
+    -fx-text-fill: #199cbc; /* Light gray color for visited links */
+}
+/*-------------------------*/
+.search-input {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #0077cc;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 8 12;
+    -fx-font-size: 14px;
+    -fx-text-fill: #333;
+    -fx-prompt-text-fill: #888;
+}
+.search-input:focused {
+    -fx-border-color: #00aa88;
+    -fx-effect: dropshadow(two-pass-box, rgba(0,170,136,0.3), 6, 0.0, 0, 2);
+}

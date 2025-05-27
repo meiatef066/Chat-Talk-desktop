@@ -1,0 +1,17 @@
+User registration & login
+Send/receive messages (1-to-1)
+User list / contacts
+Chat window
+(Optional for MVP) Group chats, file sharing, emojis, etc.
+\
+
+
+com.example.authjwt
+├── config/                 → Spring Security & JWT config
+├── controller/             → AuthController, UserController
+├── dto/                    → Request/Response DTOs
+├── entity/                 → User entity (JPA)
+├── repository/             → UserRepository (Spring Data JPA)
+├── security/               → JWT utilities, filters, authentication
+├── service/                → AuthService, UserService
+└── AuthJwtApplication.java → Main class

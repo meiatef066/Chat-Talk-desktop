@@ -19,12 +19,7 @@ public class UserService {
     // save user info
     // send success respond
     public User createUser( User user) {
-            User newUser = userRepository.findByEmail(user.getEmail());
-            if (newUser != null) {
-                userRepository.save(newUser);
-                return newUser;
-            }
-            return null;
+    return null;
     }
     // login
     // check email and password

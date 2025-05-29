@@ -15,7 +15,7 @@
    <children>
       <ImageView fitHeight="611.0" fitWidth="418.0" layoutX="-10.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@../../../images/pexels-manuschorchit-18856066.jpg" />
+            <Image url="@../../../images/pexels-eberhardgross-2098427.jpg" />
          </image>
       </ImageView>
       <AnchorPane layoutX="397.0" prefHeight="611.0" prefWidth="417.0" styleClass="bg-primary" stylesheets="@../../../CSS/style.css">

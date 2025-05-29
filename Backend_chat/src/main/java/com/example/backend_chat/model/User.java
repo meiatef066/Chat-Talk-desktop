@@ -46,6 +46,11 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role = Role.USER;
 
+    private String bio;
+    private String phoneNumber;
+    private String country;
+    private String gender;
+
     // SPRING SECURITY OVERRIDES
 
     @Override

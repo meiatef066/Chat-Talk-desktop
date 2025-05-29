@@ -13,11 +13,11 @@
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="651.0" prefWidth="868.0" styleClass="bg-primary" stylesheets="@../../../CSS/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.chat_frontend.controller.Login">
+<AnchorPane prefHeight="664.0" prefWidth="867.0" styleClass="bg-primary" stylesheets="@../../../CSS/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.chat_frontend.controller.Login">
    <children>
       <AnchorPane layoutX="430.0" prefHeight="651.0" prefWidth="438.0">
          <children>
-            <ImageView fitHeight="656.0" fitWidth="438.0" layoutY="-1.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fitHeight="664.0" fitWidth="462.0" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../../../../../../../../../../../img/pexels-eberhardgross-1743377.jpg" />
                </image>

@@ -27,12 +27,12 @@ public class User {
         this.password = password;
     }
 
-    @JsonProperty("firstname")
+    @JsonProperty("firstName")
     public String getFirstName() {
         return firstname;
     }
 
-    @JsonProperty("lastname")
+    @JsonProperty("lastName")
     public String getLastName() {
         return lastname;
     }

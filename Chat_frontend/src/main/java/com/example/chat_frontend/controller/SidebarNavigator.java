@@ -23,32 +23,32 @@ public class SidebarNavigator {
     @FXML
     private void navigateToProfile(MouseEvent mouseEvent) {
         highlightItem(profileSidebarItem);
-        NavigationUtil.switchSceneWithFade(mouseEvent, "/com/example/chat_frontend/Profile.fxml", "Profile");
+        NavigationUtil.switchScene(mouseEvent, "/com/example/chat_frontend/Profile.fxml", "Profile");
     }
 
     @FXML
     private void navigateToChat(MouseEvent mouseEvent) {
         highlightItem(chatSidebarItem);
-        NavigationUtil.switchSceneWithFade(mouseEvent, "/com/example/chat_frontend/ChatApp.fxml", "Chat&Talk");
+        NavigationUtil.switchScene(mouseEvent, "/com/example/chat_frontend/ChatApp.fxml", "Chat&Talk");
     }
 
     @FXML
     private void navigateToGroup(MouseEvent mouseEvent) {
         highlightItem(groupSidebarItem);
-        NavigationUtil.switchSceneWithFade(mouseEvent, "/com/example/chat_frontend/Group.fxml", "Group");
+        NavigationUtil.switchScene(mouseEvent, "/com/example/chat_frontend/Group.fxml", "Group");
     }
 
     @FXML
     private void navigateToSend(MouseEvent mouseEvent) {
         highlightItem(sendSidebarItem);
-        NavigationUtil.switchSceneWithFade(mouseEvent, "/com/example/chat_frontend/AddUser.fxml", "send invitation");
+        NavigationUtil.switchScene(mouseEvent, "/com/example/chat_frontend/AddUser.fxml", "send invitation ");
     }
 
     @FXML
     private void logout(MouseEvent mouseEvent) {
         highlightItem(logoutSidebarItem);
         // Clear token (implement as needed)
-        NavigationUtil.switchSceneWithFade(mouseEvent, "/com/example/chat_frontend/Login.fxml", "Login");
+        NavigationUtil.switchScene(mouseEvent, "/com/example/chat_frontend/Login.fxml", "Login");
     }
 
     private void highlightItem(VBox selectedItem) {

@@ -1,8 +1,11 @@
 package com.example.chat_frontend.controller;
 
+import com.example.chat_frontend.API.APIRequests;
 import com.example.chat_frontend.Model.User;
 import com.example.chat_frontend.utils.NavigationUtil;
 import com.example.chat_frontend.utils.ShowDialogs;
+import com.example.chat_frontend.utils.Validation;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -13,7 +16,6 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -28,52 +30,42 @@ public class Login {
     private CheckBox rememberMe;
 
     @FXML
-    public void LoginButton() {
-        if (email.getText().equals("") || password.getText().equals("")) {
-            ShowDialogs.showWarningDialog("please enter email and password");
+    public void LoginButton(ActionEvent event) {
+        if (!Validation.isValidEmail(email.getText()) ||
+            !Validation.isValidPassword(password.getText())) {
+            return;
         }
         String email = this.email.getText();
         String password = this.password.getText();
         System.out.println(email+" "+password);
-//        User user = new User( email, password);
-//        System.out.println(user.toString());
-//
-//        try {
-//            // Serialize the User object to JSON
-//            ObjectMapper objectMapper = new ObjectMapper();
-//            String json = objectMapper.writeValueAsString(user); // Serialize User object
-//
-//            // Print the JSON string to verify
-//            System.out.println(json);
-//
-//            // send json
-//            URL url =new URL("http://localhost:8080/api/customers/login");
-//            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-//
-//            connection.setRequestMethod("POST");
-//            connection.setRequestProperty("Content-Type", "application/json");
-//            connection.setDoOutput(true);
-//
-//            connection.getOutputStream().write(json.getBytes());
-//
-//            // get response
-//            int responseCode = connection.getResponseCode();
-//            System.out.println("response is : "+responseCode);
-//            if (responseCode == 200) {
-//                ToPagefun("mainPage");
-//            }else
-//            {
-//                System.out.println("not corrrect");
-//            }
-//
-//        } catch (Exception e) {
-//            e.printStackTrace(); // Print any exception to the console
-//        }
+        ObjectMapper objectMapper = new ObjectMapper();
+        User user = new User(email, password);
+        new Thread(() -> {
+            try {
+                String userJson = objectMapper.writeValueAsString(user);
+                URL url = new URL("http://localhost:8080/api/auth/login");
+                HttpURLConnection connection= APIRequests.POSTHttpURLConnection(url, userJson);
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    System.out.println("Signup successful!");
+                    javafx.application.Platform.runLater(() -> {
+                        NavigationUtil.switchScene(event, "/com/example/chat_frontend/ChatApp.fxml", "Application");
+                    });
+                }else {
+                    System.out.println("Signup failed!");
+                    javafx.application.Platform.runLater(() -> {
+                        NavigationUtil.switchScene(event, "/com/example/chat_frontend/ChatApp.fxml", "Application");
+                    });
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
 
     }
 
     @FXML
     public void NavigateToSignup(ActionEvent actionEvent) {
-        NavigationUtil.switchSceneWithFade(actionEvent, "/com/example/chat_frontend/Signup.fxml", "Signup");
+        NavigationUtil.switchScene(actionEvent, "/com/example/chat_frontend/Signup.fxml", "Signup");
     }
 }

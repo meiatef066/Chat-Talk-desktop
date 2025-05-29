@@ -1,16 +1,22 @@
 package com.example.chat_frontend.controller;
 
+import com.example.chat_frontend.API.APIRequests;
 import com.example.chat_frontend.Model.User;
 import com.example.chat_frontend.utils.NavigationUtil;
 import com.example.chat_frontend.utils.ShowDialogs;
+import com.example.chat_frontend.utils.Validation;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
-import javax.swing.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 public class Signup {
     @FXML
@@ -23,33 +29,68 @@ public class Signup {
     private PasswordField password;
     @FXML
     private CheckBox agreeTermsAndConditions;
+
     @FXML
-    public void CreateAccount( ActionEvent event) {
-       User user = getAndValidData();
-        if(user!=null&&!agreeTermsAndConditions.isSelected()) {
-            ShowDialogs.showWarningDialog("please, read our term and condition and select checkbox if you agree ✌ ");
+    public void CreateAccount( ActionEvent event ) {
+        System.out.println("Create Account");
+        User user = getAndValidData();
+        if (user != null && !agreeTermsAndConditions.isSelected()) {
+            ShowDialogs.showWarningDialog("Please agree to the terms and conditions ✌");
             return;
         }
-        if(user != null) {
-            // call backend api
-            System.out.println("api calling"+user);
-            NavigationUtil.switchSceneWithFade(event, "/com/example/chat_frontend/ChatApp.fxml", "Application");
+        if (user != null) {
+            ObjectMapper objectMapper = new ObjectMapper();
 
+            //Run a separate thread for posting and getting an answer.
+            new Thread(() -> {
+                try {
+                    String userJson = objectMapper.writeValueAsString(user);
+                    URL url = new URL("http://localhost:8080/api/auth/signup");
+                    HttpURLConnection connection = APIRequests.POSTHttpURLConnection(url, userJson);
+                    int responseCode = connection.getResponseCode();
+
+                    if (responseCode == 200 || responseCode == 201) {
+                        System.out.println("Signup successful!");
+                        javafx.application.Platform.runLater(() -> {
+                            NavigationUtil.switchScene(event, "/com/example/chat_frontend/ChatApp.fxml", "Application");
+                        });
+                    }
+                    else {
+                        System.out.println("Signup failed: " + responseCode);
+                        javafx.application.Platform.runLater(() -> {
+                            ShowDialogs.showErrorDialog("Signup failed! Server responded with " + responseCode);
+                        });
+                    }
+
+                    System.out.println(responseCode);
+
+                } catch (IOException e) {
+                    javafx.application.Platform.runLater(() -> {
+                        ShowDialogs.showErrorDialog("Error: " + e.getMessage());
+                    });
+                    throw new RuntimeException(e);
+                }
+
+            }).start();
+            System.out.println("api calling" + user);
         }
     }
-    @FXML
-    public void NavigateToLogin(ActionEvent event) {
-        NavigationUtil.switchSceneWithFade(event, "/com/example/chat_frontend/Login.fxml", "Login");
 
+    @FXML
+    public void NavigateToLogin( ActionEvent event ) {
+        NavigationUtil.switchScene(event, "/com/example/chat_frontend/Login.fxml", "Login");
     }
+
     // helper function
     private User getAndValidData() {
-        if(firstName.getText().isEmpty() || lastName.getText().isEmpty() || email.getText().isEmpty() || password.getText().isEmpty()) {
-            ShowDialogs.showWarningDialog("Please, enter all field");
+        if (!Validation.isValidName(firstName.getText()) ||
+                !Validation.isValidName(lastName.getText()) ||
+                !Validation.isValidEmail(email.getText()) ||
+                !Validation.isValidPassword(password.getText())) {
             return null;
         }
-        User user = new User(firstName.getText(), lastName.getText(), email.getText(), password.getText());
-        return user;
+        return new User(firstName.getText(), lastName.getText(), email.getText(), password.getText());
     }
+
 
 }

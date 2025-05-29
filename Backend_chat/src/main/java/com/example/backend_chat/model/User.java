@@ -36,19 +36,23 @@ public class User implements UserDetails {
 
     @Column(name="password_hash",nullable = false)
     private String password;
-
+    @Column(name = "profile_picture")
     private String profilePicture;
-
+@Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
-
+@Column(name = "is_online")
     private Boolean isOnline = false;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "role")
     private Role role = Role.USER;
-
+@Column(name = "bio")
     private String bio;
+@Column(name = "phone_number")
     private String phoneNumber;
+@Column(name = "country")
     private String country;
+@Column(name = "gender")
     private String gender;
 
     // SPRING SECURITY OVERRIDES

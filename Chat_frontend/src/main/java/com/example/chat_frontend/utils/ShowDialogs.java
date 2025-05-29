@@ -11,4 +11,13 @@ public class ShowDialogs {
 
         alert.showAndWait();
     }
+
+    public static void showErrorDialog( String s ) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error ");
+        alert.setHeaderText("Something went wrong!");
+        alert.setContentText(s);
+
+        alert.showAndWait();
+    }
 }

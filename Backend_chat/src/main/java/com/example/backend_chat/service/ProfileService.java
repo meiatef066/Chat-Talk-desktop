@@ -31,7 +31,7 @@ public class ProfileService {
         user.setGender(request.getGender());
         user.setPhoneNumber(request.getPhoneNumber());
         user.setProfilePicture(request.getProfilePicture());
-        user.setStatus(request.getStatus());
+        user.setCountry(request.getCountry());
         return userRepository.save(user);
     }
 }

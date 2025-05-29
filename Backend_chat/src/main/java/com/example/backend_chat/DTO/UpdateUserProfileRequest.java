@@ -20,7 +20,7 @@ public class UpdateUserProfileRequest {
     private String email;
     private String phoneNumber;
     private String address;
-    private String status;
+    private String country;
     private String gender;
     private String profilePicture;
     @Size(max = 50)

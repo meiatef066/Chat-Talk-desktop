@@ -1,5 +1,7 @@
 package com.example.chat_frontend.API;
 
+import com.example.chat_frontend.utils.TokenManager;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -19,4 +21,13 @@ public class APIRequests {
         }
         return connection;
     }
+
+    public static HttpURLConnection GETHttpURLConnection(URL url) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty("Authorization", "Bearer " + TokenManager.getInstance().getToken());
+        connection.setRequestProperty("Content-Type", "application/json");
+        return connection;
+    }
+
 }

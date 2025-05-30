@@ -1,40 +1,41 @@
 package com.example.backend_chat.controller;
 
 import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 import com.example.backend_chat.DTO.UpdateUserProfileRequest;
 import com.example.backend_chat.model.User;
 import com.example.backend_chat.service.ProfileService;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.util.Map;
-
 @RestController
-@RequestMapping("/profile")
+@RequestMapping("/api/profile")
 public class ProfileController {
-private final Cloudinary cloudinary;
+    private final Cloudinary cloudinary;
     private final ProfileService profileService;
+
     public ProfileController( ProfileService profileService, Cloudinary cloudinary ) {
         this.cloudinary = cloudinary;
         this.profileService = profileService;
     }
+
     @GetMapping
     public ResponseEntity<User> getProfile() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println(">>> Controller Authentication: " + auth);
+        System.out.println(">>> Auth Name: " + auth.getName());
+        System.out.println(">>> Auth Principal: " + auth.getPrincipal());
         String username = auth.getName();
-        User user=profileService.getUser(username);
+        User user = profileService.getUser(username);
         return ResponseEntity.ok(user);
     }
 
-    @PatchMapping
+
+    @PatchMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<?> updateProfile(
-            @Valid @RequestBody UpdateUserProfileRequest request) {
+            @ModelAttribute @Valid UpdateUserProfileRequest request ) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
@@ -42,7 +43,6 @@ private final Cloudinary cloudinary;
         return ResponseEntity.ok(updatedUser);
 
     }
-
 
 
 }

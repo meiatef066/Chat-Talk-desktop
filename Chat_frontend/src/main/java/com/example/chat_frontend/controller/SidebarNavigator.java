@@ -1,6 +1,7 @@
 package com.example.chat_frontend.controller;
 
 import com.example.chat_frontend.utils.NavigationUtil;
+import com.example.chat_frontend.utils.TokenManager;
 import javafx.fxml.FXML;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
@@ -47,7 +48,8 @@ public class SidebarNavigator {
     @FXML
     private void logout(MouseEvent mouseEvent) {
         highlightItem(logoutSidebarItem);
-        // Clear token (implement as needed)
+        TokenManager.getInstance().clearToken();
+        System.out.println("Logged out successfully and delete token");
         NavigationUtil.switchScene(mouseEvent, "/com/example/chat_frontend/Login.fxml", "Login");
     }
 

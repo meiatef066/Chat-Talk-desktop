@@ -85,7 +85,7 @@
                         <VBox spacing="5.0">
                            <children>
                               <Label styleClass="text-tiny" text="Status" textFill="WHITE" />
-                              <TextField fx:id="status" prefHeight="30.0" promptText="Status (e.g., Available, Busy)" styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css" />
+                              <TextField fx:id="country" prefHeight="30.0" promptText="Status (e.g., Available, Busy)" styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css" />
                            </children>
                         </VBox>
                         <VBox spacing="5.0">

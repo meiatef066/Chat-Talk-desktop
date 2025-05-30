@@ -13,6 +13,7 @@ public class ChatApp {
     private VBox userListVBox; // This must match fx:id="userListVBox" in ChatApp.fxml
 
     public void initialize() {
+        // user get contacts api
         List<User> users = List.of(
                 new User("Alice", "Smith", "https://i.pravatar.cc/40?img=1"),
                 new User("Bob", "Johnson", "https://i.pravatar.cc/40?img=2"),

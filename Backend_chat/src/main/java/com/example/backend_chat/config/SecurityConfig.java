@@ -37,6 +37,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(new AntPathRequestMatcher("/api/auth/**")).permitAll()
+                        .requestMatchers("/api/profile").authenticated()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex

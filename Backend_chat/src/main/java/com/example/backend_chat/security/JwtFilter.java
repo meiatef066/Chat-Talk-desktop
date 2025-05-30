@@ -29,16 +29,21 @@ public class JwtFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain chain) throws ServletException, IOException {
 
+        System.out.println("JwtFilter triggered for: " + request.getRequestURI());
+        System.out.println("Authorization header: " );
+
         final String authHeader = request.getHeader("Authorization");
 
-        // 🔧 Skip if there's no token or doesn't start with Bearer
+        //  Skip if there's no token or doesn't start with Bearer
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             chain.doFilter(request, response);
             return;
         }
-
+        System.out.println("Authorization header: " + authHeader);
         final String jwt = authHeader.substring(7); // remove "Bearer "
         final String email = jwtUtil.extractEmail(jwt);
+        System.out.println("email: " + email);
+        System.out.println("header: " + jwt);
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
@@ -50,6 +55,6 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
 
-        chain.doFilter(request, response); // 🔄 continue the filter chain
+        chain.doFilter(request, response);
     }
 }

@@ -20,6 +20,7 @@ import javafx.scene.control.TextField;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 public class Login {
     @FXML
@@ -44,24 +45,39 @@ public class Login {
             try {
                 String userJson = objectMapper.writeValueAsString(user);
                 URL url = new URL("http://localhost:8080/api/auth/login");
-                HttpURLConnection connection= APIRequests.POSTHttpURLConnection(url, userJson);
+                HttpURLConnection connection = APIRequests.POSTHttpURLConnection(url, userJson);
                 int responseCode = connection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK) {
-                    System.out.println("Signup successful!");
+                    // Read the response JSON body (contains token)
+                    try (var inputStream = connection.getInputStream()) {
+                        String responseBody = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+                        System.out.println("Response: " + responseBody);
+                        // Parse JSON to extract token
+                        var jsonNode = objectMapper.readTree(responseBody);
+                        if (jsonNode.has("token")) {
+                            String token = jsonNode.get("token").asText();
+                            System.out.println("Token received: " + token);
+                            // Save token to TokenManager singleton
+                            com.example.chat_frontend.utils.TokenManager.getInstance().setToken(token);
+                        } else {
+                            System.err.println("Login response does not contain token!");
+                            // Handle error: no token returned
+                            return;
+                        }
+                    }
+                    // Switch scene on UI thread after success
                     javafx.application.Platform.runLater(() -> {
                         NavigationUtil.switchScene(event, "/com/example/chat_frontend/ChatApp.fxml", "Application");
                     });
-                }else {
-                    System.out.println("Signup failed!");
-                    javafx.application.Platform.runLater(() -> {
-                        NavigationUtil.switchScene(event, "/com/example/chat_frontend/ChatApp.fxml", "Application");
-                    });
+                } else {
+                    System.out.println("Login failed! HTTP code: " + responseCode);
+                    // You might want to show an error dialog here
                 }
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
+                // Handle exception, maybe show error dialog on UI thread
             }
         }).start();
-
     }
 
     @FXML

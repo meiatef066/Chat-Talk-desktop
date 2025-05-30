@@ -1,5 +1,8 @@
 package com.example.chat_frontend.controller;
 
+import com.example.chat_frontend.API.APIRequests;
+import com.example.chat_frontend.Model.User;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -9,32 +12,79 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 public class ProfileController {
-    @FXML private ImageView profileImage;
-    @FXML private TextField firstName;
-    @FXML private TextField lastName;
-    @FXML private TextField email;
-    @FXML private TextField phoneNumber;
-    @FXML private TextArea address;
-    @FXML private TextField status;
-    @FXML private ComboBox<String> gender;
-    @FXML private Button saveButton;
+    @FXML
+    private ImageView profileImage;
+    @FXML
+    private TextField firstName;
+    @FXML
+    private TextField lastName;
+    @FXML
+    private TextField email;
+    @FXML
+    private TextField phoneNumber;
+    @FXML
+    private TextArea address;
+    @FXML
+    private TextField country;
+    @FXML
+    private ComboBox<String> gender;
+    @FXML
+    private Button saveButton;
+
     @FXML
     public void initialize() {
-        // Initialize form with default or fetched user data
-        gender.getSelectionModel().select("Prefer not to say");
-        // Example: Fetch user data from backend and set fields
-        // firstName.setText("John");
-        // lastName.setText("Doe");
-        // email.setText("john.doe@example.com");
-        // phoneNumber.setText("+1234567890");
-        // address.setText("123 Main St, City, Country");
-        // status.setText("Available");
-        // gender.getSelectionModel().select("Male");
+        gender.getItems().addAll("Male", "Female", "Prefer not to say");
+
+        try {
+            URL url = new URL("http://localhost:8080/api/profile");
+            HttpURLConnection connection = APIRequests.GETHttpURLConnection(url);
+            System.out.println("JSON Response: " + connection.toString());
+            int responseCode = connection.getResponseCode();
+            if (responseCode == 200) {
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)
+                );
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+                reader.close();
+
+                System.out.println("JSON Response: " + response.toString()); // Debug: Log the response
+
+                ObjectMapper mapper = new ObjectMapper();
+                User user = mapper.readValue(response.toString(), User.class);
+
+                // Populate fields with null checks
+                firstName.setText(user.getFirstName() != null ? user.getFirstName() : "");
+                lastName.setText(user.getLastName() != null ? user.getLastName() : "");
+                email.setText(user.getEmail() != null ? user.getEmail() : "");
+                phoneNumber.setText(user.getPhoneNumber() != null ? user.getPhoneNumber() : "");
+                address.setText(user.getAddress() != null ? user.getAddress() : "");
+                country.setText(user.getCountry() != null ? user.getCountry() : "");
+                gender.setValue(user.getGender() != null ? user.getGender() : "Prefer not to say");
+
+                if (user.getProfilePicture() != null && !user.getProfilePicture().isEmpty()) {
+                    profileImage.setImage(new Image(user.getProfilePicture(), true));
+                }
+            } else {
+                System.out.println("Failed to load profile: HTTP " + responseCode);
+            }
+            connection.disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -73,16 +123,9 @@ public class ProfileController {
 
     @FXML
     private void saveProfile(ActionEvent event) {
-        // Save data to backend (e.g., API call)
-        System.out.println("Saving profile: " +
-                "First Name: " + firstName.getText() +
-                ", Last Name: " + lastName.getText() +
-                ", Email: " + email.getText() +
-                ", Phone: " + phoneNumber.getText() +
-//              ", Address: " + address.getText() +
-                ", Status: " + status.getText() +
-                ", profile picture"+profileImage.getImage()+
-                ", Gender: " + gender.getValue());
-        // Example: Send data to backend API
+        System.out.println("Saving profile: " + "First Name: " + firstName.getText() + ", Last Name: " + lastName.getText() +
+                ", Email: " + email.getText() + ", Phone: " + phoneNumber.getText() +
+                ", Address: " + address.getText() + ", Country: " + country.getText() +
+                ", Gender: " + gender.getValue() + ", Profile Picture: " + profileImage.getImage());
     }
 }

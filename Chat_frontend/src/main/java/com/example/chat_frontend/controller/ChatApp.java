@@ -13,21 +13,20 @@ public class ChatApp {
     private VBox userListVBox; // This must match fx:id="userListVBox" in ChatApp.fxml
 
     public void initialize() {
-        // user get contacts api
         List<User> users = List.of(
                 new User("Alice", "Smith", "https://i.pravatar.cc/40?img=1"),
                 new User("Bob", "Johnson", "https://i.pravatar.cc/40?img=2"),
                 new User("Charlie", "Brown", "https://i.pravatar.cc/40?img=3")
         );
 
-        for (User user : users) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/chat_frontend/ChatUserItem.fxml"));                Node node = loader.load();
-                ChatUserItem controller = loader.getController();
-                controller.setUserData(user, " ");
-                userListVBox.getChildren().add(node);            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+//        for (User user : users) {
+//            try {
+//                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/chat_frontend/ChatUserItem.fxml"));                Node node = loader.load();
+////                ChatUserItem controller = loader.getController();
+//                controller.setUserData(user, " ");
+//                userListVBox.getChildren().add(node);            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 }

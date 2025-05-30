@@ -41,4 +41,8 @@ public class Validation {
         }
         return true;
     }
+    // Simple URL validation (can be enhanced as needed)
+    public static boolean isValidUrl(String url) {
+        return url.matches("^(https?|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
+    }
 }

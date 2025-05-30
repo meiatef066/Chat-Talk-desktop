@@ -20,4 +20,12 @@ public class ShowDialogs {
 
         alert.showAndWait();
     }
+
+    public static void showInfoDialog( String s ) {
+      Alert alert = new Alert(Alert.AlertType.INFORMATION);
+      alert.setTitle("Information");
+      alert.setHeaderText("success!");
+      alert.setContentText(s);
+      alert.showAndWait();
+    }
 }

@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
+@Validated
 public class AuthController {
 
     private final AuthService authService;
@@ -34,7 +36,6 @@ public class AuthController {
         Map<String, Object> body = new HashMap<>();
         body.put("message", "User registered successfully");
         body.put("token", response.getToken());
-//        body.put("user", response.getUser());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
@@ -46,7 +47,6 @@ public class AuthController {
         Map<String, Object> body = new HashMap<>();
         body.put("message", "Login successful");
         body.put("token", response.getToken());
-//        body.put("user", response.getUser());
 
         return ResponseEntity.ok(body); // HTTP 200
     }

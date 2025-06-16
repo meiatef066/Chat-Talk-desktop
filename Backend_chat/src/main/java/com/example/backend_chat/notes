@@ -1,0 +1,6 @@
+@Table(name = "messages", indexes = {
+    @Index(name = "idx_chat_id", columnList = "chat_id"),
+    @Index(name = "idx_sender_id", columnList = "sender_id"),
+    @Index(name = "idx_receiver_id", columnList = "receiver_id")
+})
+}

@@ -9,26 +9,23 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<HBox alignment="CENTER" prefHeight="95.0" prefWidth="540.0" spacing="15.0" styleClass="chat-item" stylesheets="@../../../CSS/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.chat_frontend.controller.AddUserItem">
+<HBox alignment="CENTER" prefHeight="95.0" prefWidth="540.0" spacing="15.0" styleClass="chat-item"
+      stylesheets="@../../../CSS/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.chat_frontend.controller.AddUserItem">
     <padding>
-        <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
+        <Insets bottom="10.0" left="15.0" right="15.0" top="10.0"/>
     </padding>
-    <children>
-        <ImageView fx:id="profileImage" fitHeight="90.0" fitWidth="66.0" preserveRatio="true" styleClass="profile-image">
-            <image>
-                <Image url="@../../../images/icons2/icons8-search-50.png" />
-            </image>
-        </ImageView>
-        <VBox prefHeight="100.0" prefWidth="198.0" spacing="6.0" HBox.hgrow="ALWAYS">
-            <children>
-                <Label fx:id="userName" styleClass="chat-username" text="User Name" />
-                <Label fx:id="userEmail" styleClass="text-muted" text="user@example.com" />
-            </children>
-        </VBox>
-        <Button fx:id="addButton" onAction="#addUser" prefHeight="44.0" prefWidth="133.0" styleClass="button-success" text="Add Contact">
-            <tooltip>
-                <Tooltip text="Add this user to your contacts" />
-            </tooltip>
-        </Button>
-    </children>
+    <ImageView fx:id="profileImage" fitHeight="90.0" fitWidth="66.0" preserveRatio="true" styleClass="profile-image">
+        <Image url="@../../../images/icons2/icons8-search-50.png"/>
+    </ImageView>
+    <VBox prefHeight="100.0" prefWidth="198.0" spacing="6.0" HBox.hgrow="ALWAYS">
+        <Label fx:id="userName" styleClass="chat-username" text="User Name"/>
+        <Label fx:id="userEmail" styleClass="text-muted" text="user@example.com"/>
+    </VBox>
+    <Button fx:id="addButton" onAction="#addUser" prefHeight="44.0" prefWidth="133.0" styleClass="button-success"
+            text="Add Contact">
+        <tooltip>
+            <Tooltip text="Add this user to your contacts"/>
+        </tooltip>
+    </Button>
 </HBox>

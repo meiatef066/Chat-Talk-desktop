@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<HBox alignment="CENTER_LEFT" maxWidth="Infinity" prefHeight="82.0" prefWidth="387.0" spacing="12.0"
+      styleClass="chat-item" stylesheets="@../../../CSS/style.css" xmlns="http://javafx.com/javafx/23.0.1"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.chat_frontend.controller.UserItem">
+    <padding>
+        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
+    </padding>
+    <ImageView fx:id="profileImage" fitHeight="60.0" fitWidth="60.0" preserveRatio="true"
+               styleClass="profile-image">
+        <Image url="@../../../images/icons2/icons8-male-user-50.png"/>
+    </ImageView>
+    <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+        <Label fx:id="userName" styleClass="chat-username" text="User Name">
+            <font>
+                <Font name="System Bold" size="16.0"/>
+            </font>
+        </Label>
+        <Label fx:id="userEmail" styleClass="text-muted" text="user@example.com">
+            <font>
+                <Font name="System" size="12.0"/>
+            </font>
+        </Label>
+    </VBox>
+</HBox>

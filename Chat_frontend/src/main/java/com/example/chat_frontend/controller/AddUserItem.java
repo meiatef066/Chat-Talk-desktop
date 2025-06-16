@@ -41,7 +41,6 @@ public class AddUserItem {
         if (user.getAvatarUrl() != null && !user.getAvatarUrl().isEmpty()&& Validation.isValidUrl(user.getAvatarUrl())) {
             profileImage.setImage(new Image(user.getAvatarUrl(), true));
         }
-
     }
 
     @FXML
@@ -54,7 +53,7 @@ public class AddUserItem {
         new Thread(() -> {
             try {
                 // Construct the URL
-                URL url = new URL("http://localhost:8080/api/contacts/add");
+                URL url = new URL("http://localhost:8080/api/contacts");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("POST");
                 connection.setRequestProperty("Content-Type", "application/json");

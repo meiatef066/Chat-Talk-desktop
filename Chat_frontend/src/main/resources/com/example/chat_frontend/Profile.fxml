@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.lang.String?>
+<?import java.net.URL?>
 <?import javafx.collections.FXCollections?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
@@ -18,101 +19,84 @@
 <?import javafx.scene.text.Font?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="694.0" prefWidth="931.0" styleClass="bg-primary" stylesheets="@../../../CSS/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.chat_frontend.controller.ProfileController">
-    <left>
-        <!-- Sidebar Navigator (Included from SidebarNavigator.fxml) -->
-        <fx:include fx:id="sidebarNavigator" source="SidebarNavigator.fxml" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
-
-    </left>
+   <left>
+      <fx:include source="SidebarNavigator.fxml" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
+   </left>
    <center>
-      <ScrollPane fx:id="contentScrollPane" fitToWidth="true" prefHeight="510.0" prefWidth="657.0" styleClass="bg-primary, modern-scroll" stylesheets="@../../../CSS/style.css" BorderPane.alignment="CENTER">
-         <content>
-            <VBox alignment="TOP_CENTER" maxWidth="816.0" minWidth="300.0" prefHeight="774.0" prefWidth="816.0" spacing="20.0" styleClass="bg-primary" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0">
-               <padding>
-                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-               </padding>
-               <children>
-                  <Label styleClass="text-primary" text="Your Profile" textFill="WHITE">
-                     <font>
-                        <Font name="System Bold" size="24.0" />
-                     </font>
-                  </Label>
-                  <VBox alignment="CENTER" spacing="10.0">
-                     <children>
-                        <ImageView fx:id="profileImage" fitHeight="120.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../../../images/icons2/icons8-male-user-50.png" />
-                           </image>
-                        </ImageView>
-                        <Button fx:id="changeProfilePicButton" onAction="#changeProfilePicture" prefHeight="38.0" prefWidth="200.0" styleClass="button-primary" text="Change Profile Picture" />
-                     </children>
-                  </VBox>
-                  <VBox fx:id="formVBox" maxWidth="500.0" minWidth="300.0" spacing="15.0">
-                     <children>
-                        <HBox spacing="10.0">
-                           <children>
-                              <VBox prefWidth="0.0" spacing="5.0" HBox.hgrow="ALWAYS">
-                                 <children>
-                                    <Label styleClass="text-tiny" text="First Name" textFill="WHITE" />
-                                    <TextField fx:id="firstName" prefHeight="30.0" promptText="First Name" styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css" />
-                                 </children>
-                              </VBox>
-                              <VBox prefWidth="0.0" spacing="5.0" HBox.hgrow="ALWAYS">
-                                 <children>
-                                    <Label styleClass="text-tiny" text="Last Name" textFill="WHITE" />
-                                    <TextField fx:id="lastName" prefHeight="30.0" promptText="Last Name" styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css" />
-                                 </children>
-                              </VBox>
-                           </children>
-                        </HBox>
-                        <VBox spacing="5.0">
-                           <children>
-                              <Label styleClass="text-tiny" text="Email" textFill="WHITE" />
-                              <TextField fx:id="email" onKeyReleased="#validateEmail" prefHeight="30.0" promptText="Email" styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css" />
-                           </children>
-                        </VBox>
-                        <VBox spacing="5.0">
-                           <children>
-                              <Label styleClass="text-tiny" text="Phone Number" textFill="WHITE" />
-                              <TextField fx:id="phoneNumber" onKeyReleased="#validatePhoneNumber" prefHeight="30.0" promptText="Phone Number (e.g., +1234567890)" styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css" />
-                           </children>
-                        </VBox>
-                        <VBox spacing="5.0">
-                           <children>
-                              <Label styleClass="text-tiny" text="Address" textFill="WHITE" />
-                              <TextArea fx:id="address" prefHeight="80.0" promptText="Street, City, Country" styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css" />
-                           </children>
-                        </VBox>
-                        <VBox spacing="5.0">
-                           <children>
-                              <Label styleClass="text-tiny" text="Status" textFill="WHITE" />
-                              <TextField fx:id="country" prefHeight="30.0" promptText="Status (e.g., Available, Busy)" styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css" />
-                           </children>
-                        </VBox>
-                        <VBox spacing="5.0">
-                           <children>
-                              <Label styleClass="text-tiny" text="Gender" textFill="WHITE" />
-                              <ComboBox fx:id="gender" prefHeight="30.0" promptText="Select Gender" styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css">
-                                 <items>
-                                    <FXCollections fx:factory="observableArrayList">
-                                       <String fx:value="Male" />
-                                       <String fx:value="Female" />
-                                       <String fx:value="Prefer not to say" />
-                                    </FXCollections>
-                                 </items>
-                              </ComboBox>
-                           </children>
-                        </VBox>
-                     </children>
-                  </VBox>
-                  <HBox alignment="CENTER" spacing="20.0">
-                     <children>
-                        <Button fx:id="saveButton" onAction="#saveProfile" prefHeight="38.0" prefWidth="150.0" styleClass="button-primary" text="Save Changes" />
-                        <Button fx:id="cancelButton" prefHeight="38.0" prefWidth="150.0" styleClass="button-secondary" text="Cancel" />
-                     </children>
-                  </HBox>
-               </children>
+      <ScrollPane fitToWidth="true" prefHeight="510.0" prefWidth="657.0" styleClass="bg-primary, modern-scroll" stylesheets="@../../../CSS/style.css" BorderPane.alignment="CENTER">
+         <VBox alignment="TOP_CENTER" maxWidth="816.0" minWidth="300.0" prefHeight="774.0" prefWidth="816.0" spacing="20.0" styleClass="bg-primary" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0">
+            <padding>
+               <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+            <Label styleClass="text-primary" text="Your Profile" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="24.0" />
+               </font>
+            </Label>
+            <VBox alignment="CENTER" spacing="10.0">
+               <ImageView fx:id="profileImage" fitHeight="120.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true">
+                  <Image url="@../../../images/icons2/icons8-male-user-50.png" />
+               </ImageView>
+               <Button onAction="#changeProfilePicture" prefHeight="38.0" prefWidth="200.0" styleClass="button-primary" text="Change Profile Picture" />
             </VBox>
-         </content>
+            <VBox maxWidth="500.0" minWidth="300.0" spacing="15.0">
+               <HBox spacing="10.0">
+                  <VBox prefWidth="0.0" spacing="5.0" HBox.hgrow="ALWAYS">
+                     <Label styleClass="text-tiny" text="First Name" textFill="WHITE" />
+                     <TextField fx:id="firstName" prefHeight="30.0" promptText="First Name" styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css" />
+                  </VBox>
+                  <VBox prefWidth="0.0" spacing="5.0" HBox.hgrow="ALWAYS">
+                     <Label styleClass="text-tiny" text="Last Name" textFill="WHITE" />
+                     <TextField fx:id="lastName" prefHeight="30.0" promptText="Last Name" styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css" />
+                  </VBox>
+               </HBox>
+               <VBox spacing="5.0">
+                  <Label styleClass="text-tiny" text="Email" textFill="WHITE" />
+                  <TextField fx:id="email" prefHeight="30.0" promptText="Email" styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css" />
+                  <Label fx:id="errorLabel" styleClass="text-tiny" text="" textFill="#ff5555" />
+               </VBox>
+               <VBox spacing="5.0">
+                  <Label styleClass="text-tiny" text="Phone Number" textFill="WHITE" />
+                  <TextField fx:id="phoneNumber" prefHeight="30.0" promptText="Phone Number (e.g., +1234567890)" styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css" />
+               </VBox>
+               <VBox spacing="5.0">
+                  <Label styleClass="text-tiny" text="Address" textFill="WHITE" />
+                  <TextArea fx:id="address" prefHeight="80.0" promptText="Street, City, Country">
+                     <stylesheets>
+                        <URL value="@../../../CSS/inputstyle.css" />
+                        <URL value="@../../../CSS/style.css" />
+                     </stylesheets></TextArea>
+               </VBox>
+               <VBox spacing="5.0">
+                  <Label styleClass="text-tiny" text="Country" textFill="WHITE" />
+                  <TextField fx:id="country" prefHeight="30.0" promptText="Country (e.g., USA)" styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css" />
+               </VBox>
+               <VBox spacing="5.0">
+                  <Label styleClass="text-tiny" text="Gender" textFill="WHITE" />
+                  <ComboBox fx:id="gender" prefHeight="30.0" promptText="Select Gender" styleClass="combo-box">
+                     <items>
+                        <FXCollections fx:factory="observableArrayList">
+                           <String fx:value="Male" />
+                           <String fx:value="Female" />
+                           <String fx:value="Other" />
+                           <String fx:value="Prefer not to say" />
+                        </FXCollections>
+                     </items>
+                     <stylesheets>
+                        <URL value="@../../../CSS/inputstyle.css" />
+                        <URL value="@../../../CSS/Style%20v1.css" />
+                     </stylesheets>
+                  </ComboBox>
+               </VBox>
+            </VBox>
+            <HBox alignment="CENTER" spacing="20.0">
+               <Button fx:id="saveButton" onAction="#saveProfile" prefHeight="38.0" prefWidth="150.0" styleClass="button-primary" text="Save Changes" />
+               <Button prefHeight="38.0" prefWidth="150.0" styleClass="button-secondary" text="Cancel" />
+            </HBox>
+         </VBox>
       </ScrollPane>
    </center>
+   <opaqueInsets>
+      <Insets top="12.0" />
+   </opaqueInsets>
 </BorderPane>

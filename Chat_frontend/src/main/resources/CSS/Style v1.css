@@ -1,0 +1,66 @@
+/* ComboBox Styling */
+.combo-box {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #cccccc;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 4 24 4 8;
+    -fx-font-size: 14px;
+}
+
+.combo-box .arrow-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0 8 0 8;
+}
+
+.combo-box .arrow {
+    -fx-shape: "M0,0 L8,0 L4,6 Z";
+    -fx-background-color: #555555;
+}
+
+.combo-box:hover {
+    -fx-border-color: #999999;
+}
+
+.combo-box:focused {
+    -fx-border-color: #007bff;
+    -fx-effect: dropshadow(gaussian, rgba(0, 123, 255, 0.3), 4, 0, 0, 0);
+}
+
+.combo-box .list-cell {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #333333;
+    -fx-padding: 6 8 6 8;
+}
+
+.combo-box .list-cell:hover {
+    -fx-background-color: #e6f3ff;
+}
+
+/* CheckBox Styling */
+.check-box .box {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #cccccc;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+    -fx-padding: 2;
+}
+
+.check-box:selected .box {
+    -fx-background-color: #007bff;
+    -fx-border-color: #007bff;
+}
+
+.check-box .mark {
+    -fx-shape: "M2,5 L4,7 L8,3";
+    -fx-stroke: #ffffff;
+    -fx-stroke-width: 2;
+}
+
+.check-box:hover .box {
+    -fx-border-color: #999999;
+}
+
+.check-box:focused .box {
+    -fx-effect: dropshadow(gaussian, rgba(0, 123, 255, 0.3), 4, 0, 0, 0);
+}

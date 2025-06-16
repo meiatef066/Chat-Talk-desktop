@@ -1,6 +1,5 @@
 package com.example.backend_chat.controller;
 
-import com.cloudinary.Cloudinary;
 import com.example.backend_chat.DTO.UpdateUserProfileRequest;
 import com.example.backend_chat.model.User;
 import com.example.backend_chat.service.ProfileService;
@@ -13,11 +12,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/profile")
 public class ProfileController {
-    private final Cloudinary cloudinary;
     private final ProfileService profileService;
 
-    public ProfileController( ProfileService profileService, Cloudinary cloudinary ) {
-        this.cloudinary = cloudinary;
+    public ProfileController( ProfileService profileService ) {
         this.profileService = profileService;
     }
 

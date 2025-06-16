@@ -23,4 +23,5 @@ public class TokenManager {
     public boolean isAuthenticated() {
         return token != null;
     }
+
 }

@@ -45,4 +45,13 @@ public class Validation {
     public static boolean isValidUrl(String url) {
         return url.matches("^(https?|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
     }
+
+    public static boolean validateToken() {
+        String token = TokenManager.getInstance().getToken();
+        System.out.println("Token: " + token);
+        if (token == null || token.isEmpty()) {
+            return false;
+        }
+        return true;
+    }
 }

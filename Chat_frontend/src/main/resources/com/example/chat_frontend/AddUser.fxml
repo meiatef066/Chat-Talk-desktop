@@ -12,7 +12,6 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
-
 <BorderPane prefHeight="708.0" prefWidth="935.0" styleClass="bg-primary" stylesheets="@../../../CSS/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.chat_frontend.controller.AddUser">
     <left>
         <fx:include fx:id="sidebarNavigator" source="SidebarNavigator.fxml" BorderPane.alignment="TOP_LEFT" />
@@ -29,11 +28,11 @@
                         <Tooltip text="Enter email, name, or phone to find contacts" />
                     </tooltip>
                 </TextField>
-                <ScrollPane fx:id="scrollPane" fitToWidth="true" maxHeight="400.0" prefViewportHeight="400.0" styleClass="modern-scroll" VBox.vgrow="ALWAYS">
+                <ScrollPane fx:id="scrollPane" fitToWidth="true" maxHeight="470.0" prefHeight="470.0" prefViewportHeight="400.0" prefWidth="714.0" styleClass="modern-scroll" VBox.vgrow="ALWAYS">
                     <content>
-                        <VBox fx:id="searchResultsVBox" alignment="TOP_CENTER" spacing="10.0" styleClass="bg-primary">
+                        <VBox fx:id="searchResultsVBox" alignment="TOP_CENTER" prefHeight="442.0" prefWidth="712.0" spacing="10.0" styleClass="bg-primary">
                             <children>
-                                <VBox fx:id="emptyState" alignment="CENTER" managed="false" spacing="10.0" visible="false">
+                                <VBox fx:id="emptyState" alignment="CENTER" managed="false" spacing="10.0" styleClass="bg-primary" visible="false">
                                     <children>
                                         <ImageView fitHeight="100.0" fitWidth="100.0" preserveRatio="true">
                                             <image>

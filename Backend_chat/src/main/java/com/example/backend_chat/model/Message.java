@@ -26,6 +26,8 @@ public class Message {
     @JoinColumn(name = "sender_id", nullable = false)
     private User sender;
 
+
+
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
@@ -35,10 +37,14 @@ public class Message {
     private MessageType messageType;
 
     @Column(name = "sent_at", nullable = false)
-    private LocalDateTime sentAt = LocalDateTime.now();
+    private LocalDateTime sentAt ;
 
     @Column(name = "is_read", nullable = false)
     private boolean isRead = false;
 
+    @PrePersist
+    protected void onCreate() {
+        sentAt = LocalDateTime.now();
+    }
 
 }

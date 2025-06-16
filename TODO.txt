@@ -1,0 +1,69 @@
+🔜 1. Friend Request System
+UI:
+ Add "Send Request" button next to each searched user (if not already a friend)
+
+ Show friend request status: pending / accepted / declined
+
+Backend:
+ Create FriendRequest model: senderId, receiverId, status (PENDING, ACCEPTED, DECLINED)
+
+ POST /friend-request/send
+
+ GET /friend-request/pending (for current user)
+
+ PATCH /friend-request/respond (accept/decline)
+
+Logic:
+ Only allow chat between users with accepted requests
+
+ Block re-sending if already friends or pending
+
+🔜 2. Messaging System (Live Chat)
+UI:
+ Show chat window with message bubbles
+
+ Input field to send messages
+
+ Scrollable chat history per user
+
+Backend:
+ Message model: senderId, receiverId, content, timestamp
+
+ POST /messages/send
+
+ GET /messages/history?user1=X&user2=Y
+
+Live Messaging:
+ Integrate WebSocket for real-time message updates
+
+ Subscribe to incoming messages on client side
+
+ Auto-update chat UI on new messages
+
+🔜 3. Notifications
+Types:
+ New message notification (if not in that chat)
+
+ Friend request received
+
+ Friend request accepted
+
+UI:
+ Add bell icon or side panel for notifications
+
+ Show pop-up or badge on new event
+
+Backend:
+ Save notifications (optional)
+
+ Push notifications over WebSocke
+
+Extras)
+ Profile pictures / user bio
+
+ Online/offline status
+
+ Dark mode toggle
+
+ Typing indicators (via WebSocket)
+

@@ -3,7 +3,6 @@ package com.example.backend_chat.DTO;
 import lombok.Getter;
 
 @Getter
-
 public class UserSearchDTO {
     private Long id;
     private String email;

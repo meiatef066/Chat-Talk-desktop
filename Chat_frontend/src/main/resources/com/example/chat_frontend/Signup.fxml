@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Hyperlink?>
@@ -8,46 +9,46 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Line?>
 
-<AnchorPane prefHeight="605.0" prefWidth="813.0" styleClass="bg-primary" stylesheets="@../../../CSS/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.chat_frontend.controller.Signup">
-   <children>
-      <ImageView fitHeight="611.0" fitWidth="418.0" layoutX="-10.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@../../../images/pexels-eberhardgross-2098427.jpg" />
-         </image>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="652.0" prefWidth="877.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.chat_frontend.controller.Signup">
+   <left>
+      <ImageView fitHeight="655.0" fitWidth="445.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
+         <Image url="@../../../images/pexels-eberhardgross-2098427.jpg" />
       </ImageView>
-      <AnchorPane layoutX="397.0" prefHeight="611.0" prefWidth="417.0" styleClass="bg-primary" stylesheets="@../../../CSS/style.css">
-         <children>
-            <TextField fx:id="lastName" layoutX="192.0" layoutY="202.0" prefHeight="28.0" prefWidth="142.0" promptText="last name" styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css" />
-            <TextField fx:id="firstName" layoutX="26.0" layoutY="200.0" prefHeight="30.0" prefWidth="142.0" promptText="first name" styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css" />
-            <Label layoutX="35.0" layoutY="43.0" prefHeight="38.0" prefWidth="315.0" styleClass="text-primary" stylesheets="@../../../CSS/style.css" text="Create an account" textFill="WHITE" />
-            <Label layoutX="35.0" layoutY="123.0" styleClass="text-tiny" stylesheets="@../../../CSS/style.css" text="Already have an account ?" />
-            <Hyperlink layoutX="181.0" layoutY="118.0" onAction="#NavigateToLogin" prefHeight="24.0" prefWidth="72.0" stylesheets="@../../../CSS/style.css" text="Log in" />
-            <TextField fx:id="email" layoutX="23.0" layoutY="254.0" prefHeight="26.0" prefWidth="315.0" promptText="Email" styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css" />
-            <Label layoutX="46.0" layoutY="376.0" prefHeight="15.0" prefWidth="72.0" styleClass="text-tiny" stylesheets="@../../../CSS/style.css" text="I agree to the" />
-            <Hyperlink layoutX="126.0" layoutY="373.0" text="Terms and Conditions" />
-            <CheckBox fx:id="agreeTermsAndConditions" layoutX="26.0" layoutY="375.0" mnemonicParsing="false" textFill="WHITE" />
-            <Button contentDisplay="CENTER" layoutX="31.0" layoutY="440.0" mnemonicParsing="false" onAction="#CreateAccount" prefHeight="38.0" prefWidth="315.0" styleClass="button-primary" stylesheets="@../../../CSS/style.css" text="Create Account" />
-            <Line endX="24.20001220703125" layoutX="136.0" layoutY="507.0" startX="-100.0" stroke="#6c757d" />
-            <Label layoutX="169.0" layoutY="499.0" text="Or with" textFill="#adbfb8" />
-            <Line endX="39.79998779296875" layoutX="304.0" layoutY="507.0" startX="-89.79998779296875" stroke="#6c757d" />
-            <Label layoutX="171.0" layoutY="499.0" styleClass="text-tiny" stylesheets="@../../../CSS/style.css" />
-            <PasswordField fx:id="password" layoutX="23.0" layoutY="306.0" prefHeight="26.0" prefWidth="315.0" promptText="Password" styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css" />
-            <ImageView fitHeight="30.0" fitWidth="31.0" layoutX="46.0" layoutY="533.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../../../images/icons/icons8-google-48.png" />
-               </image>
-            </ImageView>
-            <Button layoutX="35.0" layoutY="529.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="142.0" styleClass="button-google" stylesheets="@../../../CSS/style.css" text="Google" textAlignment="RIGHT" />
-            <ImageView fitHeight="30.0" fitWidth="31.0" layoutX="207.0" layoutY="533.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../../../images/icons/icons8-google-48.png" />
-               </image>
-            </ImageView>
-            <Button layoutX="207.0" layoutY="529.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="142.0" styleClass="button-google" stylesheets="@../../../CSS/style.css" text="Google" textAlignment="RIGHT" />
-         </children>
-      </AnchorPane>
-   </children>
-</AnchorPane>
+   </left>
+   <center>
+      <VBox alignment="CENTER" prefHeight="643.0" prefWidth="450.0" spacing="20.0" styleClass="bg-primary" stylesheets="@../../../CSS/style.css" BorderPane.alignment="CENTER">
+         <padding>
+            <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+         </padding>
+         <Label prefHeight="38.0" prefWidth="353.0" styleClass="text-primary" text="Create an account 🤖" textFill="WHITE" />
+         <HBox alignment="CENTER_LEFT" spacing="5.0">
+            <Label prefHeight="18.0" prefWidth="138.0" styleClass="text-tiny" text="Already have an account?" />
+            <Hyperlink onAction="#NavigateToLogin" prefHeight="24.0" prefWidth="72.0" text="Log in" />
+         </HBox>
+         <HBox alignment="CENTER" spacing="20.0">
+            <TextField fx:id="firstName" prefHeight="30.0" prefWidth="246.0" promptText="First name" styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css" />
+            <TextField fx:id="lastName" prefHeight="30.0" prefWidth="282.0" promptText="Last name" styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css" />
+         </HBox>
+         <TextField fx:id="email" prefHeight="30.0" prefWidth="300.0" promptText="Email" styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css" />
+         <PasswordField fx:id="password" prefHeight="30.0" prefWidth="324.0" promptText="Password" styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css" />
+         <PasswordField fx:id="passwordConfirm" prefHeight="30.0" prefWidth="382.0" promptText="Confirm password" styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css" />
+         <HBox alignment="CENTER_LEFT" spacing="5.0">
+            <CheckBox fx:id="agreeTermsAndConditions" prefHeight="25.0" prefWidth="32.0"  textFill="WHITE" />
+            <Label styleClass="text-tiny" text="I agree to the" />
+            <Hyperlink text="Terms and Conditions" />
+         </HBox>
+         <Button onAction="#CreateAccount" prefHeight="51.0" prefWidth="330.0" styleClass="button-primary" text="Create Account" />
+         <HBox alignment="CENTER" spacing="10.0">
+            <Line endX="13.892901420593262" endY="0.6271703839302063" startX="-123.45555114746094" startY="1.2543407678604126" stroke="#6c757d" />
+            <Label text="Or with" textFill="#adbfb8" />
+            <Line endX="19.49289321899414" endY="0.4349096417427063" startX="-100.0" stroke="#6c757d" />
+         </HBox>
+         <Button prefHeight="38.0" prefWidth="318.0" styleClass="button-primary" text="Sign in with Google" />
+      </VBox>
+   </center>
+</BorderPane>

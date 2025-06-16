@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+  <button onclick="connectAndSend()">Send Message</button>
+
+  <script>
+    function connectAndSend() {
+      const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYWlhdGVmQGdtYWlsLmNvbSIsImlhdCI6MTc0OTU5MzM1NiwiZXhwIjoxNzQ5NTk2OTU2fQ.lc9qwEIzeLkK-3D6PV4xnCWGdASb-xfjO0-0zpZ1hOw"
+      const chatId = 3;
+
+      const socket = new SockJS('http://localhost:8080/ws?token=' + token);
+      const stompClient = Stomp.over(socket);
+      stompClient.debug = null; // Remove to see debug logs
+
+      stompClient.connect({
+        Authorization: `Bearer ${token}`
+      }, function (frame) {
+        console.log('Connected: ' + frame);
+
+        // Construct the message
+        const messageDTO = {
+          chatId: chatId,
+          senderEmail: "maiatef@gmail.com",  // Make sure it matches token user!
+          content: "Hello from WebSocket!",
+          messageType: "TEXT"               // Must match your enum in Java
+        };
+
+        stompClient.send(`/app/chat.send/${chatId}`, {}, JSON.stringify(messageDTO));
+        console.log("Message sent");
+      }, function (error) {
+        console.error("Connection error: ", error);
+      });
+    }
+  </script>
+</body>
+</html>

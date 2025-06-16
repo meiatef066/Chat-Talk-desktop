@@ -42,4 +42,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("error", "An unexpected error occurred"));
     }
+    @ExceptionHandler(FriendRequestAlreadyExist.class)
+    public ResponseEntity<Object> handleFriendRequestAlreadyExist(Exception ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("Friend request already exists.", ex.getMessage()));
+    }
 }

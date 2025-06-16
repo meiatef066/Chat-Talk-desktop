@@ -8,10 +8,8 @@ import com.example.backend_chat.exception.UserNotFoundException;
 import com.example.backend_chat.model.ENUM.Role;
 import com.example.backend_chat.model.User;
 import com.example.backend_chat.repository.UserRepository;
-import com.example.backend_chat.security.JwtFilter;
 import com.example.backend_chat.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -53,21 +51,27 @@ public class AuthService {
         if(userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new EmailAlreadyExistsException("Email already in use: " + request.getEmail());
         }
+        // hash password
+        passwordEncoder.encode(request.getPassword());
         User user = new User();
         user.setEmail(request.getEmail());
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.USER);
+
         userRepository.save(user);
+
         String token = jwtUtil.generateToken(new org.springframework.security.core.userdetails.User(
                 user.getUsername(), user.getPassword(), List.of(new SimpleGrantedAuthority("ROLE_USER"))
         ));
+
         return new AuthResponse(token);
     }
+
     public AuthResponse login( LoginRequest loginRequest ) {
         Optional<User> user = userRepository.findByEmail(loginRequest.getEmail());
-        if (!user.isPresent()) {
+        if (user.isEmpty()) {
             throw new UserNotFoundException("User not found");
         }
 

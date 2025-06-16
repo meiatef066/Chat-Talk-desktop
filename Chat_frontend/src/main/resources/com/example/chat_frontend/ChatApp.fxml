@@ -1,58 +1,115 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollBar?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="694.0" prefWidth="930.0" stylesheets="@../../../CSS/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.chat_frontend.controller.ChatApp">
-   <center>
-      <VBox prefHeight="200.0" prefWidth="100.0" styleClass="bg-primary" stylesheets="@../../../CSS/style.css" BorderPane.alignment="CENTER">
-         <children>
-            <HBox alignment="CENTER" prefHeight="78.0" prefWidth="686.0">
-               <children>
-                  <ImageView fitHeight="33.0" fitWidth="33.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@../../../images/icons2/icons8-search-50.png" />
-                     </image>
-                  </ImageView>
-                  <TextField prefHeight="34.0" prefWidth="493.0" promptText="Enter email or number..." styleClass="search-input" stylesheets="@../../../CSS/style.css" />
-               </children>
-               <padding>
-                  <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
-               </padding>
+<BorderPane maxHeight="Infinity" maxWidth="Infinity" styleClass="bg-primary" stylesheets="@../../../CSS/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.chat_frontend.controller.ChatApp">
+    <!-- Sidebar Navigator (left) -->
+    <left>
+        <fx:include source="SidebarNavigator.fxml" />
+    </left>
+
+    <!-- Friend List (center) -->
+    <center>
+        <VBox alignment="TOP_CENTER" maxHeight="Infinity" prefHeight="724.0" prefWidth="588.0" spacing="15.0" styleClass="bg-primary">
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+            <Label styleClass="text-primary" text="Contacts" textFill="WHITE">
+                <font>
+                    <Font name="System Bold" size="28.0" />
+                </font>
+            </Label>
+            <HBox alignment="CENTER" spacing="12.0">
+                <TextField fx:id="searchFriendField" maxWidth="Infinity" onKeyReleased="#filterFriends" prefHeight="48.0" promptText="Search contacts..." styleClass="search-input" HBox.hgrow="ALWAYS" />
+                <Button fx:id="addFriendButton" onAction="#showAddFriendPane" prefHeight="51.0" prefWidth="42.0" styleClass="button-primary" text="+" />
             </HBox>
-            <ScrollPane fx:id="userListContainer" prefHeight="612.0" prefWidth="661.0" stylesheets="@../../../CSS/style.css">
-               <content>
-                  <VBox fx:id="userListVBox" prefHeight="558.0" prefWidth="486.0" />
-               </content>
-            </ScrollPane>
-         </children>
-      </VBox>
-   </center>
+            <TabPane fx:id="contactTabs" maxHeight="Infinity" prefHeight="567.0" prefWidth="603.0">
+                <Tab closable="false" text="Friends">
+                    <ListView fx:id="friendList" maxHeight="Infinity" onMouseClicked="#loadMessages" prefHeight="517.0" prefWidth="374.0" styleClass="group-list" />
+                </Tab>
+                <Tab closable="false" text="Pending Requests">
+                    <ScrollPane fitToWidth="true" maxHeight="Infinity" prefHeight="498.0" prefWidth="552.0">
+                        <ListView fx:id="pendingRequestList" maxHeight="Infinity" prefHeight="513.0" prefWidth="522.0" stylesheets="@../../../CSS/style.css">
+                     <styleClass>
+                        <String fx:value="bg-left-sidebar" />
+                        <String fx:value="pending-request-list" />
+                        <String fx:value="group-list" />
+                     </styleClass></ListView>
+                  <styleClass>
+                     <String fx:value="bg-left-sidebar" />
+                     <String fx:value="group-list" />
+                     <String fx:value="modern-scroll" />
+                  </styleClass>
+                    </ScrollPane>
+                </Tab>
+            <styleClass>
+               <String fx:value="modern-tabs" />
+               <String fx:value="bg-left-sidebar" />
+            </styleClass>
+            </TabPane>
+        </VBox>
+    </center>
 
-   <right>
-      <VBox prefHeight="694.0" prefWidth="314.0" BorderPane.alignment="CENTER">
-         <children>
-            <HBox prefHeight="100.0" prefWidth="200.0">
-               <children>
-                  <Label text="Chat Describtion" />
-               </children>
-            </HBox>
-            <ScrollBar orientation="VERTICAL" prefHeight="588.0" prefWidth="14.0" />
-         </children>
-      </VBox>
-   </right>
-   <left>
-      <!-- Sidebar Navigator (Included from SidebarNavigator.fxml) -->
-      <fx:include fx:id="sidebarNavigator" source="SidebarNavigator.fxml" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" />
-
-   </left>
+    <!-- Chat Window or Add Friend Pane (right) -->
+    <right>
+        <VBox fx:id="rightPane" maxHeight="Infinity" maxWidth="Infinity" prefHeight="724.0" prefWidth="517.0" spacing="15.0" styleClass="bg-primary" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+            <!-- Chat Window (default) -->
+            <VBox fx:id="chatWindow" maxHeight="Infinity" maxWidth="Infinity" spacing="15.0">
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <ImageView fx:id="friendAvatar" fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" styleClass="avatar" />
+                    <Label fx:id="friendNameLabel" styleClass="text-primary" text="Select a Friend" textFill="WHITE">
+                        <font>
+                            <Font name="System Bold" size="20.0" />
+                        </font>
+                    </Label>
+                </HBox>
+                <Label fx:id="friendStatusLabel" styleClass="text-tiny" text="Status: Unknown" textFill="#B0B0B0">
+                    <font>
+                        <Font name="System" size="14.0" />
+                    </font>
+                </Label>
+                <ScrollPane fitToWidth="true" maxHeight="Infinity" prefHeight="503.0" prefWidth="668.0">
+                    <styleClass>
+                        <String fx:value="modern-scroll" />
+<!--                        <String fx:value="ba"/>-->
+                    </styleClass>
+                    <VBox fx:id="messageList" maxWidth="Infinity" spacing="12.0" />
+                </ScrollPane>
+                <HBox alignment="CENTER" spacing="12.0">
+                    <TextArea fx:id="messageInput" maxWidth="Infinity" prefHeight="67.0" prefWidth="414.0" promptText="Type a message..." styleClass="input-field" stylesheets="@../../../CSS/inputstyle.css" HBox.hgrow="ALWAYS" />
+                    <Button fx:id="sendMessageButton" onAction="#sendMessage" prefHeight="60.0" prefWidth="104.0" styleClass="button-primary" text="💚" />
+                </HBox>
+            </VBox>
+            <!-- Add Friend Pane (hidden by default) -->
+            <VBox fx:id="addFriendPane" managed="false" maxHeight="Infinity" maxWidth="Infinity" spacing="15.0" visible="false">
+                <Label styleClass="text-primary" text="Add Friend" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="20.0" />
+                    </font>
+                </Label>
+                <TextField fx:id="searchUserField" maxWidth="Infinity" onKeyReleased="#searchUsers" prefHeight="48.0" promptText="Enter email to find user..." styleClass="search-input" />
+                <ScrollPane fitToWidth="true" maxHeight="Infinity" styleClass="modern-scroll">
+                    <ListView fx:id="userSearchResults" maxHeight="Infinity" maxWidth="Infinity" styleClass="group-list" />
+                </ScrollPane>
+                <Button onAction="#hideAddFriendPane" prefHeight="48.0" prefWidth="100.0" styleClass="button-primary" text="Back" />
+            </VBox>
+        </VBox>
+    </right>
 </BorderPane>

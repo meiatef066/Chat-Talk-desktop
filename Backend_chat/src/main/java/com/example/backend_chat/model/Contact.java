@@ -3,6 +3,7 @@ package com.example.backend_chat.model;
 import com.example.backend_chat.model.ENUM.ContactStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -33,8 +34,8 @@ public class Contact {
     @Column(nullable = false)
     private ContactStatus status;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
-
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false,updatable = false)
+    private LocalDateTime createdAt ;
 
 }

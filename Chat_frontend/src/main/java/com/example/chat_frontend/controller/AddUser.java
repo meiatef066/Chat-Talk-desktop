@@ -43,106 +43,109 @@ public class AddUser {
         emptyState.setManaged(false);
         loadingIndicator.setVisible(false);
         searchResultsVBox.getChildren().clear();
-        searchResultsVBox.getChildren().addAll(emptyState, loadingIndicator);
     }
 
     @FXML
     public void searchUsers(KeyEvent keyEvent) {
         String searchText = contactSearchField.getText().trim();
+
         if (searchText.isEmpty()) {
-            Platform.runLater(() -> {
-                emptyState.setVisible(true);
-                emptyState.setManaged(true);
-                searchResultsVBox.getChildren().clear();
-                searchResultsVBox.getChildren().addAll(emptyState, loadingIndicator);
-            });
+            updateUIForEmptySearch();
             return;
         }
 
-        Platform.runLater(() -> {
-            loadingIndicator.setVisible(true);
-            emptyState.setVisible(false);
-            emptyState.setManaged(false);
-            searchResultsVBox.getChildren().clear();
-            searchResultsVBox.getChildren().add(loadingIndicator);
-        });
+        showLoadingState();
 
         new Thread(() -> {
             try {
-                String urlString = "http://localhost:8080/api/users/search?query=" + searchText;
-                URL url = new URL(urlString);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setRequestProperty("Accept", "application/json");
-                connection.setRequestProperty("Authorization", "Bearer " + TokenManager.getInstance().getToken());
-
-                int responseCode = connection.getResponseCode();
-                System.out.println("Response Code: " + responseCode);
-                if (responseCode != 200) {
-                    Platform.runLater(() -> {
-                        System.out.println("Failed to fetch users: HTTP " + responseCode);
-                        loadingIndicator.setVisible(false);
-                        emptyState.setVisible(true);
-                        emptyState.setManaged(true);
-                        searchResultsVBox.getChildren().clear();
-                        searchResultsVBox.getChildren().addAll(emptyState, loadingIndicator);
-                    });
-                    return;
-                }
-
-                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                StringBuilder response = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    response.append(line);
-                }
-                reader.close();
-                connection.disconnect();
-
-                System.out.println("Raw JSON Response: " + response);
-                ObjectMapper objectMapper = new ObjectMapper();
-                List<UserSearchDTO> users = objectMapper.readValue(response.toString(), new TypeReference<>() {
-                });
-                System.out.println("Parsed Users: " + users);
-
-                Platform.runLater(() -> {
-                    searchResultsVBox.getChildren().clear();
-                    loadingIndicator.setVisible(false);
-                    if (users.isEmpty()) {
-                        emptyState.setVisible(true);
-                        emptyState.setManaged(true);
-                        searchResultsVBox.getChildren().addAll(emptyState, loadingIndicator);
-                    } else {
-                        emptyState.setVisible(false);
-                        emptyState.setManaged(false);
-                        for (UserSearchDTO user : users) {
-                            try {
-                                System.out.println("Loading user: " + user.getDisplayName());
-                                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/chat_frontend/AddUserItem.fxml"));
-                                HBox userItem = loader.load(); // Changed to HBox
-                                AddUserItem controller = loader.getController();
-                                controller.setUserData(user);
-                                searchResultsVBox.getChildren().add(userItem);
-                            } catch (IOException e) {
-                                Platform.runLater(() -> ShowDialogs.showErrorDialog("Error loading user item: " + e.getMessage()));
-                            }
-                        }
-                        searchResultsVBox.getChildren().add(loadingIndicator);
-                    }
-                });
-
+                List<UserSearchDTO> users = fetchUsers(searchText);
+                updateUIWithResults(users);
             } catch (IOException e) {
-                System.out.println("IOException: " + e.getMessage());
                 Platform.runLater(() -> {
                     ShowDialogs.showErrorDialog("Error during API call: " + e.getMessage());
-                    loadingIndicator.setVisible(false);
-                    emptyState.setVisible(true);
-                    emptyState.setManaged(true);
-                    searchResultsVBox.getChildren().clear();
-                    searchResultsVBox.getChildren().addAll(emptyState, loadingIndicator);
+                    updateUIForEmptySearch();
                 });
             }
         }).start();
+    }
+
+    private void updateUIForEmptySearch() {
+        Platform.runLater(() -> {
+            searchResultsVBox.getChildren().clear();
+            emptyState.setVisible(true);
+            emptyState.setManaged(true);
+            loadingIndicator.setVisible(false);
+            searchResultsVBox.getChildren().add(emptyState);
+        });
+    }
+
+    private void showLoadingState() {
+        Platform.runLater(() -> {
+            searchResultsVBox.getChildren().clear();
+            loadingIndicator.setVisible(true);
+            emptyState.setVisible(false);
+            emptyState.setManaged(false);
+            searchResultsVBox.getChildren().add(loadingIndicator);
+        });
+    }
+
+    private List<UserSearchDTO> fetchUsers(String searchText) throws IOException {
+        String urlString = "http://localhost:8080/api/users/search?query=" + searchText;
+        HttpURLConnection connection = null;
+        try {
+            URL url = new URL(urlString);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Authorization", "Bearer " + TokenManager.getInstance().getToken());
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode != 200) {
+                throw new IOException("Failed to fetch users: HTTP " + responseCode);
+            }
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+            reader.close();
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.readValue(response.toString(), new TypeReference<List<UserSearchDTO>>() {});
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    private void updateUIWithResults(List<UserSearchDTO> users) {
+        Platform.runLater(() -> {
+            searchResultsVBox.getChildren().clear();
+            loadingIndicator.setVisible(false);
+
+            if (users.isEmpty()) {
+                updateUIForEmptySearch();
+                return;
+            }
+
+            emptyState.setVisible(false);
+            emptyState.setManaged(false);
+
+            for (UserSearchDTO user : users) {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/chat_frontend/AddUserItem.fxml"));
+                    HBox userItem = loader.load();
+                    AddUserItem controller = loader.getController();
+                    controller.setUserData(user);
+                    searchResultsVBox.getChildren().add(userItem);
+                } catch (IOException e) {
+                    ShowDialogs.showErrorDialog("Error loading user item: " + e.getMessage());
+                }
+            }
+        });
     }
 
     @FXML

@@ -1,5 +1,6 @@
 package com.example.chat_frontend.DTO;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,9 +11,10 @@ import java.time.LocalDateTime;
 @Setter
 @Data
 public class ContactResponse {
+    @JsonProperty("id")
     private Long id;
-    private SimpleUserDTO user;
+    @JsonProperty("contact")
     private SimpleUserDTO contact;
+    @JsonProperty("status")
     private String status;
-//    private LocalDateTime createdAt;
 }

@@ -60,7 +60,7 @@ public class Signup {
 
         signupTask.setOnSucceeded(e -> {
             String token = signupTask.getValue();
-            TokenManager.getInstance().setToken(token);
+            TokenManager.getInstance().setToken(token,email.getText());
             logger.info("Signup successful for user: {}", user.getEmail());
             NavigationUtil.switchScene(event, "/com/example/chat_frontend/ChatApp.fxml", "Application");
         });

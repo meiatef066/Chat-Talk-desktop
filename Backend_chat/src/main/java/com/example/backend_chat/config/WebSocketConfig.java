@@ -12,18 +12,20 @@ import org.springframework.web.socket.config.annotation.*;
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
-    @Autowired
-    private JwtUtil jwtUtil;
+    private final CustomUserDetailsService customUserDetailsService;
+    private final JwtUtil jwtUtil;
     private final JwtChannelInterceptor jwtChannelInterceptor;
     @Autowired
-    public WebSocketConfig( JwtChannelInterceptor jwtChannelInterceptor ) {
+    public WebSocketConfig( JwtChannelInterceptor jwtChannelInterceptor, CustomUserDetailsService customUserDetailsService, JwtUtil jwtUtil ) {
         this.jwtChannelInterceptor = jwtChannelInterceptor;
+        this.customUserDetailsService = customUserDetailsService;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/ws").setAllowedOrigins("*");            // for JavaFX
+
         registry.addEndpoint("/ws")
                 .addInterceptors(new AuthHandshakeInterceptor(jwtUtil,customUserDetailsService))
                 .setAllowedOriginPatterns("*")
@@ -35,6 +37,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.enableSimpleBroker("/topic", "/queue");
         config.setApplicationDestinationPrefixes("/app");
+        config.setUserDestinationPrefix("/user");
     }
 
     @Override

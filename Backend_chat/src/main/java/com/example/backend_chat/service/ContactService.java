@@ -11,6 +11,7 @@ import com.example.backend_chat.repository.ContactRepository;
 import com.example.backend_chat.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ import java.util.Set;
 
 @Service
 public class ContactService {
+
     private final UserRepository userRepository;
     private final ContactRepository contactRepository;
     private final SimpMessagingTemplate messageTemplate;
@@ -49,38 +51,49 @@ public class ContactService {
         Contact newContact = Contact.builder().user(sender).contact(receiver).status(ContactStatus.PENDING).build();
         contactRepository.save(newContact);
         // notify receiver via websocket real time
-        ContactResponse contactResponse= toContactResponse(newContact);
-        messageTemplate.convertAndSendToUser(receiver.getEmail(),"/topic/friend-request", contactResponse);
+        ContactResponse contactResponse = toContactResponse(newContact);
+
+        messageTemplate.convertAndSendToUser(receiver.getEmail(), "/topic/friend-request", contactResponse);
+
+        System.out.println("🔔 Sending WebSocket notification to: " + receiver.getEmail());
         return contactResponse;
     }
 
-    private ContactResponse toContactResponse( Contact contact ) {
-        return ContactResponse.builder()
-                .id(contact.getId())
-                .user(toSimpleUser(contact.getUser()))
-                .contact(toSimpleUser(contact.getContact()))
-                .status(contact.getStatus().name())
-//                .createdAt(contact.getCreatedAt())
-                .build();
-    }
 
     public List<ContactResponse> getAcceptedRequest( String email ) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
         List<Contact> contactsAsUser = contactRepository.findByUserAndStatus(user, ContactStatus.ACCEPTED);
         List<Contact> contactsAsContact = contactRepository.findByContactAndStatus(user, ContactStatus.ACCEPTED);
 
-        Set<Contact> allContacts = new HashSet<>();
-        allContacts.addAll(contactsAsUser);
-        allContacts.addAll(contactsAsContact);
+        Set<User> friendUsers = new HashSet<>();
 
-        return allContacts.stream().map(this::toContactResponse).toList();
+        // Contacts where current user is the sender
+        for (Contact contact : contactsAsUser) {
+            friendUsers.add(contact.getContact()); // other person is contact
+        }
+
+        // Contacts where current user is the receiver
+        for (Contact contact : contactsAsContact) {
+            friendUsers.add(contact.getUser()); // other person is user
+        }
+
+        return friendUsers.stream()
+                .map(this::toSimpleUser)
+                .map(friend -> ContactResponse.builder()
+//                        .user(toSimpleUser(user))         // current user
+                        .contact(friend)                  // actual friend
+                        .status(ContactStatus.ACCEPTED.name())
+                        .build())
+                .toList();
     }
+
 
     public List<ContactResponse> getRejectedRequest( Long id ) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        List<Contact> contacts =  (contactRepository.findByUserAndStatus(user, ContactStatus.ACCEPTED));
+        List<Contact> contacts = (contactRepository.findByUserAndStatus(user, ContactStatus.ACCEPTED));
         return contacts.stream().map(this::toContactResponse).toList();
     }
 
@@ -89,13 +102,11 @@ public class ContactService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userEmail));
 
-        List<Contact> contacts = contactRepository.findByUserAndStatus(user, ContactStatus.PENDING);
-
-        //return contacts.stream().map(this::toContactResponse).toList();
+        List<Contact> contacts = contactRepository.findByContactAndStatus(user, ContactStatus.PENDING);
         return contacts.stream().map(contact -> ContactResponse.builder()
                         .id(contact.getId())
-                        .user(toSimpleUser(contact.getUser()))
-                        .contact(toSimpleUser(contact.getContact()))
+//                        .user(toSimpleUser(contact.getContact()))
+                        .contact(toSimpleUser(contact.getUser()))
                         .status(contact.getStatus().name())
 //                        .createdAt(contact.getCreatedAt())
                         .build())
@@ -113,8 +124,20 @@ public class ContactService {
                 .build();
     }
 
-    public void respondToRequest( String senderEmail, String receiverEmail, String action ) {
-        User sender = userRepository.findByEmail(senderEmail)
+    private ContactResponse toContactResponse( Contact contact ) {
+        return ContactResponse.builder()
+                .id(contact.getId())
+//                .user(toSimpleUser(contact.getUser()))
+                .contact(toSimpleUser(contact.getContact()))
+                .status(contact.getStatus().name())
+//                .createdAt(contact.getCreatedAt())
+                .build();
+    }
+
+    public void respondToRequest(String senderRequestEmail, String action) {
+        String receiverEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User sender = userRepository.findByEmail(senderRequestEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("Sender not found"));
 
         User receiver = userRepository.findByEmail(receiverEmail)
@@ -124,28 +147,29 @@ public class ContactService {
                 .orElseThrow(() -> new RuntimeException("Contact request not found"));
 
         if (contact.getStatus() != ContactStatus.PENDING) {
-            throw new RuntimeException("Request already responded to" + senderEmail);
+            throw new RuntimeException("Request already responded to: " + senderRequestEmail);
         }
 
         ContactStatus newStatus;
         try {
             newStatus = ContactStatus.valueOf(action.toUpperCase());
-            if (newStatus != ContactStatus.ACCEPTED && newStatus != ContactStatus.REJECTED && newStatus != ContactStatus.BLOCKED) {
-                throw new IllegalArgumentException("Invalid action.");
+            if (newStatus != ContactStatus.ACCEPTED && newStatus != ContactStatus.REJECTED) {
+                throw new IllegalArgumentException("Invalid action: " + action);
             }
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Invalid action: " + action, e);
+            throw new IllegalArgumentException("Invalid action: " + action, e);
         }
-
 
         contact.setStatus(newStatus);
         contactRepository.save(contact);
 
+        // Notify sender of the response
         messageTemplate.convertAndSendToUser(
-                senderEmail,
-                "/topic/friend-request-response",
+                senderRequestEmail,
+                "/receiver/friend-request-response",
                 toContactResponse(contact)
         );
+
         if (newStatus == ContactStatus.ACCEPTED) {
             Contact reciprocalContact = Contact.builder()
                     .user(receiver)
@@ -157,10 +181,9 @@ public class ContactService {
             // Notify receiver of new friendship
             messageTemplate.convertAndSendToUser(
                     receiver.getEmail(),
-                    "/topic/friend-request-response",
+                    "/receiver/friend-request-response",
                     toContactResponse(reciprocalContact)
             );
         }
-
     }
 }

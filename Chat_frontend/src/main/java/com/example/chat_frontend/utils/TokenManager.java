@@ -1,8 +1,12 @@
 package com.example.chat_frontend.utils;
 
+import lombok.Getter;
+
+@Getter
 public class TokenManager {
     private static TokenManager instance ;
     private String token;
+    private String email;
     private TokenManager() {}
     public static TokenManager getInstance() {
         if (instance == null) {
@@ -11,12 +15,11 @@ public class TokenManager {
         return instance;
     }
 
-    public void setToken(String token) {
+    public void setToken(String token, String email) {
         this.token = token;
+        this.email = email;
     }
-    public String getToken() {
-        return token;
-    }
+
     public void clearToken() {
         this.token = null;
     }

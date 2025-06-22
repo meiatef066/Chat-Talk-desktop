@@ -56,7 +56,7 @@ public class Login {
 
         loginTask.setOnSucceeded(e -> {
             String token = loginTask.getValue();
-            TokenManager.getInstance().setToken(token);
+            TokenManager.getInstance().setToken(token,emailText);
             System.out.println(token);
             logger.info("Login successful for user: {}", emailText);
             if (rememberMe.isSelected()) {

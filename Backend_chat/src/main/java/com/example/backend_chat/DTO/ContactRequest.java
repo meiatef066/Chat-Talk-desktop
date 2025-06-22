@@ -10,10 +10,9 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class ContactRequest {
-    @NotBlank
     @Email
     private String sender;
     @NotBlank
-    @Email// sender
+    @Email
     private String receiver;    // receiver
 }

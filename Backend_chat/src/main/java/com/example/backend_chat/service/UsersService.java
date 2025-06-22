@@ -17,15 +17,19 @@ public class UsersService {
         this.userRepository = userRepository;
     }
     public List<UserSearchDTO> searchUser(String query) {
-        List<User> users = userRepository.searchUsersByQuery(query);
+        if (query == null || query.trim().isEmpty()) {
+            return List.of();
+        }
+        List<User> users = userRepository.searchUsersByQuery(query.trim());
         return users.stream()
                 .map(user -> new UserSearchDTO(
                         user.getId(),
                         user.getEmail(),
-                        user.getFirstName() + " " + user.getLastName(),
+                        (user.getFirstName() != null ? user.getFirstName() : "") + " " +
+                                (user.getLastName() != null ? user.getLastName() : ""),
                         user.getProfilePicture()
                 ))
-                .collect(Collectors.toList());
+                .toList();
     }
 }
 

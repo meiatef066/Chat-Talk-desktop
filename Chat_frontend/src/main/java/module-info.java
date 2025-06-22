@@ -10,6 +10,10 @@ module com.example.chat_frontend {
     requires java.desktop;
     requires spring.websocket;
     requires spring.messaging;
+    requires spring.core;
+    requires Java.WebSocket;
+    requires jakarta.annotation;
+    requires spring.web;
 
     opens com.example.chat_frontend.DTO to com.fasterxml.jackson.databind; // Allow Jackson to access DTO
 //    exports com.example.chat_frontend.controller;

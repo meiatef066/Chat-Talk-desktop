@@ -1,16 +1,17 @@
 package com.example.backend_chat.controller;
 
+import com.example.backend_chat.DTO.ApiResponse;
 import com.example.backend_chat.DTO.ContactRequest;
 import com.example.backend_chat.DTO.ContactResponse;
 import com.example.backend_chat.service.ContactService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * REST controller for managing contact (friend) requests.
@@ -30,14 +31,14 @@ public class ContactController {
      * @param contactRequest the contact request containing recipient's email
      * @return the created Contact entity
      */
-    @PostMapping
+    @PostMapping("/request")
     public ResponseEntity<ContactResponse> addContact( @RequestBody ContactRequest contactRequest ) {
         String senderEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        contactRequest.setSender(senderEmail);
+        contactRequest.setSender(senderEmail); // from token
         ContactResponse contact = contactService.sendFriendRequest(contactRequest);
         return ResponseEntity.ok(contact);
     }
-    @GetMapping("/pending")
+    @GetMapping("/request/pending")
     public ResponseEntity<List<ContactResponse>> getPendingContacts() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         try {
@@ -49,7 +50,7 @@ public class ContactController {
             return ResponseEntity.status(500).body(null);
         }
     }
-    @GetMapping("/accepted")
+    @GetMapping("/request/accepted")
     public ResponseEntity<List<ContactResponse>> getAcceptedContacts() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         try {
@@ -64,7 +65,6 @@ public class ContactController {
      * get /api/contacts  {token }
      * @return list of ContactResponse DTOs representing pending requests
      */
-    //  Get all pending requests sent by authenticated user
     @GetMapping
     public ResponseEntity<List<ContactResponse>> getAllContacts(@RequestBody String message) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -80,7 +80,6 @@ public class ContactController {
             return ResponseEntity.status(500).body(null);
         }
     }
-
     /**
      * Respond to a friend request (accept or reject).
      *  senderEmail the email of the user who sent the friend request
@@ -88,31 +87,17 @@ public class ContactController {
      * @return success message indicating the result
      */
 
-    @PatchMapping("/{receiverEmail}/response")
-    public ResponseEntity<String> respondToContactRequest( @PathVariable String receiverEmail, @RequestParam("action") String action ) {
+    @PatchMapping("/{senderRequestEmail}/response")
+    public ResponseEntity<ApiResponse> respondToContactRequest( @PathVariable String senderRequestEmail, @RequestParam("action") String action ) {
 
-        String senderEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        contactService.respondToRequest(senderEmail, receiverEmail, action);
-        return ResponseEntity.ok("Request " + action.toLowerCase());
+        try {
+            contactService.respondToRequest(senderRequestEmail, action);
+            return ResponseEntity.ok(new ApiResponse(true, "Request " + action.toLowerCase() + " successfully"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse(false, e.getMessage()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(false, e.getMessage()));
+        }
     }
 
-//    private ContactResponse toContactResponse(Contact contact) {
-//        return ContactResponse.builder()
-//                .id(contact.getId())
-//                .user(toSimpleUser(contact.getUser()))
-//                .contact(toSimpleUser(contact.getContact()))
-//                .status(contact.getStatus().name())
-//                .createdAt(contact.getCreatedAt())
-//                .build();
-//    }
-//    private SimpleUserDTO toSimpleUser( User user) {
-//        return SimpleUserDTO.builder()
-//                .id(user.getId())
-//                .firstName(user.getFirstName())
-//                .lastName(user.getLastName())
-//                .email(user.getEmail())
-//                .profilePicture(user.getProfilePicture())
-//                .isOnline(user.getIsOnline())
-//                .build();
-//    }
 }

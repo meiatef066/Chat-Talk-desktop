@@ -1,12 +1,15 @@
 package com.example.chat_frontend.controller;
 
 import com.example.chat_frontend.DTO.ContactRequest;
+import com.example.chat_frontend.DTO.ContactResponse;
+import com.example.chat_frontend.DTO.SimpleUserDTO;
 import com.example.chat_frontend.Model.UserSearchDTO;
-import com.example.chat_frontend.utils.ShowDialogs;
+import com.example.chat_frontend.Notifications.NotificationHandler;
+import com.example.chat_frontend.Notifications.PopupNotificationManager;
 import com.example.chat_frontend.utils.TokenManager;
 import com.example.chat_frontend.utils.Validation;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -30,72 +33,106 @@ public class AddUserItem {
     private ImageView profileImage;
     @FXML
     private Button addButton;
-    private final ObjectMapper objectMapper = new ObjectMapper(); // Initialize ObjectMapper
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final NotificationHandler notificationHandler = new PopupNotificationManager();
     private Long userId;
 
-    // Initialize the UI with UserSearchDTO data
-    public void setUserData(UserSearchDTO user) {
+    public void setUserData( ContactResponse response) {
+        SimpleUserDTO user=response.getContact();
         this.userId = user.getId();
-        userName.setText(user.getDisplayName() != null ? user.getDisplayName() : "Unknown");
+        String displayedName=user.getFirstName()+" "+user.getLastName();
+        userName.setText(displayedName);
         userEmail.setText(user.getEmail() != null ? user.getEmail() : "No email");
-        if (user.getAvatarUrl() != null && !user.getAvatarUrl().isEmpty() && Validation.isValidUrl(user.getAvatarUrl())) {
-            profileImage.setImage(new Image(user.getAvatarUrl(), true));
+
+        if (user.getProfilePicture() != null && !user.getProfilePicture().isEmpty()
+                && Validation.isValidUrl(user.getProfilePicture())) {
+            profileImage.setImage(new Image(user.getProfilePicture(), true));
+        }
+        if(response.getStatus().equals("PENDING"))
+        {
+            addButton.setDisable(true);
+            addButton.setText("Pending Request");
+            addButton.setStyle("-fx-background-color: #595959; -fx-text-fill: white;");
+        }
+        if(response.getStatus().equals("ACCEPTED"))
+        {
+            addButton.setDisable(true);
+            addButton.setText("Accepted");
+            addButton.setStyle("-fx-background-color: #64fa7d; -fx-text-fill: white;");
+        }
+        if(response.getStatus().equals("BLOCKED")){
+            addButton.setDisable(true);
+            addButton.setText("Blocked");
+            addButton.setStyle("-fx-background-color: #f45050; -fx-text-fill: white;");
+
         }
     }
 
     @FXML
     public void addUser(ActionEvent actionEvent) {
-        if (userEmail.getText() == null || userEmail.getText().isEmpty()) {
-            Platform.runLater(() -> {
-                ShowDialogs.showErrorDialog("⚠️ Please select a valid user.");
-                addButton.setDisable(false);
-            });
+        String receiverEmail = userEmail.getText();
+        if (receiverEmail == null || receiverEmail.isEmpty()) {
+            notificationHandler.displayErrorNotification("Invalid Action", "⚠️ Please select a valid user.");
             return;
         }
+
         addButton.setDisable(true);
-        new Thread(() -> {
-            HttpURLConnection connection = null;
-            try {
-                URL url = new URL("http://localhost:8080/api/contacts/request");
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("POST");
-                connection.setRequestProperty("Content-Type", "application/json");
-                connection.setRequestProperty("Authorization", "Bearer " + TokenManager.getInstance().getToken());
-                connection.setDoOutput(true);
 
-                ContactRequest contactRequest = new ContactRequest();
-                contactRequest.setReceiver(userEmail.getText());
-           //   Serialize to JSON using ObjectMapper
-                String jsonInputString = objectMapper.writeValueAsString(contactRequest);
-                try (OutputStream os = connection.getOutputStream()) {
-                    byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
-                    os.write(input, 0, input.length);
-                }
-
-                int responseCode = connection.getResponseCode();
-                if (responseCode >= 200 && responseCode < 300) {
-                    Platform.runLater(() -> {
-                        ShowDialogs.showInfoDialog("✅ Friend request sent successfully!");
-                        addButton.setText("Pending");
-                        addButton.setStyle("-fx-background-color: #ff8080; -fx-text-fill: white;");
-                        addButton.getStyleClass().remove("button-success");
-                    });
-                } else {
-                    Platform.runLater(() -> {
-                        ShowDialogs.showErrorDialog("❌ Failed to send request: HTTP " + responseCode);
-                        addButton.setDisable(false);
-                    });
-                }
-            } catch (IOException e) {
-                Platform.runLater(() -> {
-                    ShowDialogs.showErrorDialog("⚠️ Error sending request: " + e.getMessage());
-                    addButton.setDisable(false);
-                });
-            } finally {
-                if (connection != null) {
-                    connection.disconnect();
-                }
+        Task<Void> sendRequestTask = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                sendFriendRequest(receiverEmail);
+                return null;
             }
-        }).start();
+
+            @Override
+            protected void succeeded() {
+                addButton.setText("Pending");
+                addButton.setStyle("-fx-background-color: #ff8080; -fx-text-fill: white;");
+                addButton.getStyleClass().remove("button-success");
+                notificationHandler.displayMessageNotification("Request Sent", "✅ Friend request sent successfully!");
+            }
+
+            @Override
+            protected void failed() {
+                addButton.setDisable(false);
+                Throwable e = getException();
+                notificationHandler.displayErrorNotification("Send Failed", "❌ " + e.getMessage());
+            }
+        };
+
+        new Thread(sendRequestTask).start();
+    }
+
+    private void sendFriendRequest(String receiverEmail) throws IOException {
+        HttpURLConnection connection = null;
+        try {
+            URL url = new URL("http://localhost:8080/api/contacts/request");
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Authorization", "Bearer " + TokenManager.getInstance().getToken());
+            connection.setDoOutput(true);
+
+            ContactRequest contactRequest = new ContactRequest();
+            contactRequest.setReceiver(receiverEmail);
+            String jsonInputString = objectMapper.writeValueAsString(contactRequest);
+
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode < 200 || responseCode >= 300) {
+                throw new IOException("Failed to send friend request. HTTP status: " + responseCode);
+            }
+
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
     }
 }

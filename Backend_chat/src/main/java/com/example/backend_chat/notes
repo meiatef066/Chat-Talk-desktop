@@ -4,3 +4,82 @@
     @Index(name = "idx_receiver_id", columnList = "receiver_id")
 })
 }
+MVP Minimum viable Product
+
+✅ User registration & login (JWT)
+
+✅ Real-time messaging (WebSocket)
+
+✅ Contact management (friend requests)
+
+✅ Chat UI (JavaFX in your case)
+
+✅ Message history (chat persistence)
+
+✅ Online status (optional)
+
+✅ Notifications (optional)
+
+-------------------
+phase (1)         done
+Authentication Module :
+Login / Register with JWT
+
+User Entity, DTO, Controller, Service
+
+Security Config (AuthenticationManager, filters (jwt))
+____________________
+
+Send friend request ✅ from search find user (handle search front and back )
+Accept/Reject friend request ✅
+Accept/Reject friend request ✅
+WebSocket notification ✅
+_______________________________
+message module
+
+Define Message DTO (sender, receiver, content, timestamp)
+
+WebSocket Configuration
+
+STOMP Controller – handle /send, subscribe to /user/topic/messages
+
+Message persistence – Save to DB (JPA)
+
+Deliver to receiver – WebSocket notification
+
+Load message history – REST endpoint
+
+
+_----------------------------------
+📱 1. Login / Register Screen
+Form inputs, HTTP request to backend
+
+📱 2. Contacts Screen
+List of friends
+
+Button to send friend request
+
+Button to accept/reject request
+
+📱 3. Chat Screen
+Chat area (messages)
+
+Input box (send message via WebSocket)
+
+Scroll + history loading (via REST)
+
+___________________________________
+✅ Phase 4: Real-Time Communication
+Key Tools:
+WebSocket (Spring Boot backend)
+
+STOMP (on both sides)
+
+JavaFX client using STOMP client (like Tyrus or WebSocketClient)
+Connect on login
+
+Subscribe to /user/topic/messages
+
+Receive new messages instantly
+
+____________________________________

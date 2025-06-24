@@ -25,13 +25,16 @@ public class ContactService {
 
     private final UserRepository userRepository;
     private final ContactRepository contactRepository;
+
     private final SimpMessagingTemplate messageTemplate;
+    private final NotificationService notificationService;
 
     @Autowired
-    public ContactService( ContactRepository contactRepository, UserRepository userRepository, SimpMessagingTemplate messageTemplate ) {
+    public ContactService( ContactRepository contactRepository, UserRepository userRepository, SimpMessagingTemplate messageTemplate,NotificationService notificationService  ) {
         this.contactRepository = contactRepository;
         this.userRepository = userRepository;
         this.messageTemplate = messageTemplate;
+        this.notificationService = notificationService;
     }
 
     public ContactResponse sendFriendRequest( ContactRequest contact ) {

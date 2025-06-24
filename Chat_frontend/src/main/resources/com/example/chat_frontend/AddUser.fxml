@@ -30,20 +30,18 @@
                 </TextField>
                 <ScrollPane fx:id="scrollPane" fitToWidth="true" maxHeight="470.0" prefHeight="470.0" prefViewportHeight="400.0" prefWidth="714.0" styleClass="modern-scroll" VBox.vgrow="ALWAYS">
                     <content>
-                        <VBox fx:id="searchResultsVBox" alignment="TOP_CENTER" prefHeight="442.0" prefWidth="712.0" spacing="10.0" styleClass="bg-primary">
-                            <children>
-                                <VBox fx:id="emptyState" alignment="CENTER" managed="false" spacing="10.0" styleClass="bg-primary" visible="false">
-                                    <children>
-                                        <ImageView fitHeight="100.0" fitWidth="100.0" preserveRatio="true">
-                                            <image>
-                                                <Image url="@../../../images/icons2/icons8-search-50.png" />
-                                            </image>
-                                        </ImageView>
-                                        <Label fx:id="noResultsLabel" styleClass="text-muted" text="No results found. Try a different search term." />
-                                    </children>
-                                </VBox>
-                                <ProgressIndicator fx:id="loadingIndicator" prefHeight="40.0" prefWidth="40.0" visible="false" />
-                            </children>
+                        <VBox fx:id="searchResultsVBox" alignment="TOP_CENTER" prefHeight="442.0" prefWidth="712.0"
+                              spacing="10.0" styleClass="bg-primary">
+                            <VBox fx:id="emptyState" alignment="CENTER" managed="false" spacing="10.0"
+                                  styleClass="bg-primary" visible="false">
+                                <ImageView fitHeight="100.0" fitWidth="100.0" preserveRatio="true">
+                                    <Image url="@../../../images/icons2/icons8-search-50.png"/>
+                                </ImageView>
+                                <Label fx:id="noResultsLabel" styleClass="text-muted"
+                                       text="No results found. Try a different search term."/>
+                            </VBox>
+                            <ProgressIndicator fx:id="loadingIndicator" prefHeight="40.0" prefWidth="40.0"
+                                               visible="false"/>
                         </VBox>
                     </content>
                 </ScrollPane>

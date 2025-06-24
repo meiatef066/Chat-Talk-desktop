@@ -14,11 +14,13 @@ module com.example.chat_frontend {
     requires Java.WebSocket;
     requires jakarta.annotation;
     requires spring.web;
+    requires javafx.media;
 
     opens com.example.chat_frontend.DTO to com.fasterxml.jackson.databind; // Allow Jackson to access DTO
-//    exports com.example.chat_frontend.controller;
+    exports com.example.chat_frontend.controller;
     exports com.example.chat_frontend.DTO to com.fasterxml.jackson.databind; // Export DTO to Jackson
-
+    opens com.example.chat_frontend.Notifications to javafx.fxml;
+//    exports com.example.chat_frontend.notifications;
     opens com.example.chat_frontend.Model to com.fasterxml.jackson.databind;
     opens com.example.chat_frontend.controller to javafx.fxml;
     opens com.example.chat_frontend to javafx.fxml;

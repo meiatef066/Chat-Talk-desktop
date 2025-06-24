@@ -19,10 +19,4 @@ public class ContactResponse {
     private SimpleUserDTO contact;
     @JsonProperty("status")
     private String status;
-
-//    private Long id;
-////    private SimpleUserDTO user;
-//    private SimpleUserDTO contact;
-//    private String status;
-////    private LocalDateTime createdAt;
 }

@@ -1,12 +1,16 @@
 package com.example.chat_frontend.controller;
 
+import com.example.chat_frontend.DTO.ContactResponse;
 import com.example.chat_frontend.Model.UserSearchDTO;
+import com.example.chat_frontend.Notifications.NotificationHandler;
+import com.example.chat_frontend.Notifications.PopupNotificationManager;
 import com.example.chat_frontend.utils.NavigationUtil;
 import com.example.chat_frontend.utils.ShowDialogs;
 import com.example.chat_frontend.utils.TokenManager;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -22,6 +26,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class AddUser {
@@ -37,12 +43,18 @@ public class AddUser {
     @FXML
     private Label noResultsLabel;
 
+    private final NotificationHandler notificationHandler = new PopupNotificationManager();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final String BASE_URL = "http://localhost:8080";
+
     @FXML
     public void initialize() {
         emptyState.setVisible(false);
         emptyState.setManaged(false);
         loadingIndicator.setVisible(false);
         searchResultsVBox.getChildren().clear();
+
+
     }
 
     @FXML
@@ -56,17 +68,25 @@ public class AddUser {
 
         showLoadingState();
 
-        new Thread(() -> {
-            try {
-                List<UserSearchDTO> users = fetchUsers(searchText);
-                updateUIWithResults(users);
-            } catch (IOException e) {
-                Platform.runLater(() -> {
-                    ShowDialogs.showErrorDialog("Error during API call: " + e.getMessage());
-                    updateUIForEmptySearch();
-                });
+        Task<List<ContactResponse>> fetchTask = new Task<>() {
+            @Override
+            protected List<ContactResponse> call() throws Exception {
+                return fetchUsers(searchText);
             }
-        }).start();
+
+            @Override
+            protected void succeeded() {
+                updateUIWithResults(getValue());
+            }
+
+            @Override
+            protected void failed() {
+                notificationHandler.displayMessageNotification("Search Failed", "Could not fetch users. Please check your connection.");
+                updateUIForEmptySearch();
+            }
+        };
+
+        new Thread(fetchTask).start();
     }
 
     private void updateUIForEmptySearch() {
@@ -75,7 +95,6 @@ public class AddUser {
             emptyState.setVisible(true);
             emptyState.setManaged(true);
             loadingIndicator.setVisible(false);
-            searchResultsVBox.getChildren().add(emptyState);
         });
     }
 
@@ -89,8 +108,10 @@ public class AddUser {
         });
     }
 
-    private List<UserSearchDTO> fetchUsers(String searchText) throws IOException {
-        String urlString = "http://localhost:8080/api/users/search?query=" + searchText;
+    private List<ContactResponse> fetchUsers(String searchText) throws IOException {
+        String encodedQuery = URLEncoder.encode(searchText, StandardCharsets.UTF_8);
+        String urlString = BASE_URL + "/api/users/search?query=" + encodedQuery;
+
         HttpURLConnection connection = null;
         try {
             URL url = new URL(urlString);
@@ -112,8 +133,7 @@ public class AddUser {
             }
             reader.close();
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readValue(response.toString(), new TypeReference<List<UserSearchDTO>>() {});
+            return objectMapper.readValue(response.toString(), new TypeReference<>() {});
         } finally {
             if (connection != null) {
                 connection.disconnect();
@@ -121,7 +141,7 @@ public class AddUser {
         }
     }
 
-    private void updateUIWithResults(List<UserSearchDTO> users) {
+    private void updateUIWithResults(List<ContactResponse> users) {
         Platform.runLater(() -> {
             searchResultsVBox.getChildren().clear();
             loadingIndicator.setVisible(false);
@@ -134,7 +154,7 @@ public class AddUser {
             emptyState.setVisible(false);
             emptyState.setManaged(false);
 
-            for (UserSearchDTO user : users) {
+            for (ContactResponse user : users) {
                 try {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/chat_frontend/AddUserItem.fxml"));
                     HBox userItem = loader.load();
@@ -142,7 +162,7 @@ public class AddUser {
                     controller.setUserData(user);
                     searchResultsVBox.getChildren().add(userItem);
                 } catch (IOException e) {
-                    ShowDialogs.showErrorDialog("Error loading user item: " + e.getMessage());
+                    notificationHandler.displayMessageNotification("UI Error", "Could not load user component.");
                 }
             }
         });

@@ -1,0 +1,101 @@
+/* notificationStyle.css */
+
+/* Root styles for the notification popup */
+.root {
+    /*-fx-background-color: ; !* Fallback white background *!*/
+    -fx-background-radius: 1; /* Softer, modern rounded corners */
+    -fx-border-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 2); /* Subtle shadow */
+    -fx-padding: 8;
+}
+
+/* Message notification background */
+.bg-info {
+    -fx-background-color: linear-gradient(to bottom right, #40c4ff, #0068a1); /* Telegram-like blue gradient */
+}
+
+/* Error notification background */
+.bg-danger {
+    -fx-background-color: linear-gradient(to bottom right, #ef5350, #ed8a8a); /* Soft red gradient */
+}
+
+/* Friend request notification background */
+.bg-warning {
+    -fx-background-color: linear-gradient(to bottom right, #e3c373, #e48d5b); /* Warm orange gradient */
+}
+
+/* Friend response notification background */
+.bg-success {
+    -fx-background-color: linear-gradient(to bottom right, #66bb6a, #388e3c); /* Green gradient */
+}
+
+/* Primary text style (e.g., title) */
+.text-primary {
+    -fx-text-fill: #ffffff; /* White for contrast */
+    -fx-font-size: 18px; /* Slightly larger for modern look */
+    -fx-font-weight: 700; /* Semi-bold */
+    -fx-font-family: "Roboto", "Segoe UI", "Arial", sans-serif; /* Modern font stack */
+}
+
+/* Secondary text style (e.g., message) */
+.text-secondary {
+    -fx-text-fill: #e0e0e0; /* Softer white/gray for contrast */
+    -fx-font-size: 16px; /* Slightly larger for readability */
+    -fx-font-family: "Roboto", "Segoe UI", "Arial", sans-serif;
+}
+
+/* Accept button style */
+.button-success {
+    -fx-background-color: #4caf50; /* Telegram-like green */
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+    -fx-padding: 6px 16px; /* More padding for touch-friendly */
+    -fx-background-radius: 20; /* Pill-shaped buttons */
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 1);
+}
+.button-success:hover {
+    -fx-background-color: #43a047; /* Darker green */
+    -fx-scale-x: 1.05; /* Subtle scale animation */
+    -fx-scale-y: 1.05;
+}
+.button-success:pressed {
+    -fx-scale-x: 0.95; /* Shrink on click */
+    -fx-scale-y: 0.95;
+}
+
+/* Reject button style */
+.button-reject {
+    -fx-background-color: #ef5350; /* Soft red */
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+    -fx-padding: 6px 16px;
+    -fx-background-radius: 20; /* Pill-shaped */
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 1);
+}
+.button-reject:hover {
+    -fx-background-color: rgb(255, 91, 80); /* Darker red */
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+.button-reject:pressed {
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+}
+
+/* Profile image style (for ImageView) */
+.profile-image {
+    /*-fx-image-clip: !* Circular clip for modern avatar look *!*/
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 1);
+}
+
+/* Content box styling for better spacing */
+#contentBox {
+    -fx-background-radius: 12;
+    -fx-padding: 8;
+}

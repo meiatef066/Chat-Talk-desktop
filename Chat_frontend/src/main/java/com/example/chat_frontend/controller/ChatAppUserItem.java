@@ -1,13 +1,13 @@
 package com.example.chat_frontend.controller;
 
-import com.example.chat_frontend.Model.User;
+import com.example.chat_frontend.DTO.SimpleUserDTO;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 
-public class ChatUserItem {
+public class ChatAppUserItem {
     @FXML
     private Label userName;
 
@@ -20,15 +20,15 @@ public class ChatUserItem {
     @FXML
     private HBox chatItem;
 
-    public void setUserData(User user, String avatarUrl) {
+    public void setUserData( SimpleUserDTO user, String avatarUrl) {
         userName.setText(user.getFirstName() + " " + user.getLastName());
-        lastMessage.setText("last message");
+//        lastMessage.setText("last message");
 //
-//        if (avatarUrl != null && !avatarUrl.isEmpty()) {
-//            avatar.setImage(new Image(avatarUrl));
-//        } else {
-//            avatar.setImage(new Image("https://asset.cloudinary.com/dvghbsyda/4ed06177fc4a01335e52c41cf580447c"));
-//        }
+        if (avatarUrl != null && !avatarUrl.isEmpty()) {
+            avatar.setImage(new Image(avatarUrl));
+        } else {
+            avatar.setImage(new Image("https://asset.cloudinary.com/dvghbsyda/4ed06177fc4a01335e52c41cf580447c"));
+        }
 
         // Set click action on the whole item (root node)
         chatItem.setOnMouseClicked(event -> {
@@ -37,3 +37,4 @@ public class ChatUserItem {
         });
     }
 }
+

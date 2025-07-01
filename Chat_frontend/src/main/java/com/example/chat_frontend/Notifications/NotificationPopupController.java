@@ -1,5 +1,6 @@
 package com.example.chat_frontend.Notifications;
 
+import com.example.chat_frontend.API.ChatAppApi;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -21,9 +22,9 @@ public class NotificationPopupController {
     @FXML private Button acceptButton;
     @FXML private Button rejectButton;
 
-    private String senderEmail;
+    @FXML private String senderEmail;
     private Runnable onMessageClick;
-
+//    private ChatAppApi chatAppApi = new ChatAppApi();
     public void setData(String titleText, String messageText, String iconPath, String notificationType, String senderEmail, Runnable onMessageClick) {
         this.senderEmail = senderEmail;
         this.onMessageClick = onMessageClick;
@@ -83,12 +84,12 @@ public class NotificationPopupController {
     @FXML
     private void handleAccept() {
         System.out.println("Accepted friend request from: " + senderEmail);
-        // TODO: Implement server API call to accept friend request
+//        chatAppApi.acceptFriendRequest(senderEmail);
     }
 
     @FXML
     private void handleReject() {
         System.out.println("Rejected friend request from: " + senderEmail);
-        // TODO: Implement server API call to reject friend request
+//        chatAppApi.rejectFriendRequest(senderEmail); // Assuming ChatAppApi has this method
     }
 }

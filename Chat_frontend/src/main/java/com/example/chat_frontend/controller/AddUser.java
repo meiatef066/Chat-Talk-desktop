@@ -1,11 +1,9 @@
 package com.example.chat_frontend.controller;
 
 import com.example.chat_frontend.DTO.ContactResponse;
-import com.example.chat_frontend.Model.UserSearchDTO;
 import com.example.chat_frontend.Notifications.NotificationHandler;
 import com.example.chat_frontend.Notifications.PopupNotificationManager;
 import com.example.chat_frontend.utils.NavigationUtil;
-import com.example.chat_frontend.utils.ShowDialogs;
 import com.example.chat_frontend.utils.TokenManager;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

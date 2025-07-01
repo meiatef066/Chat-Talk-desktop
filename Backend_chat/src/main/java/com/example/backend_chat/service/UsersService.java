@@ -3,6 +3,7 @@ package com.example.backend_chat.service;
 import com.example.backend_chat.DTO.ContactResponse;
 import com.example.backend_chat.DTO.SimpleUserDTO;
 import com.example.backend_chat.model.Contact;
+import com.example.backend_chat.model.ENUM.ContactStatus;
 import com.example.backend_chat.model.User;
 import com.example.backend_chat.repository.ContactRepository;
 import com.example.backend_chat.repository.UserRepository;
@@ -61,7 +62,7 @@ public class UsersService {
                                     .lastName(user.getLastName() != null ? user.getLastName() : "")
                                     .profilePicture(user.getProfilePicture())
                                     .build())
-                            .status(status)
+                            .status(ContactStatus.valueOf(status))
                             .build();
                 })
                 .collect(Collectors.toList());

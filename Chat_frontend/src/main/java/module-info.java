@@ -15,6 +15,7 @@ module com.example.chat_frontend {
     requires jakarta.annotation;
     requires spring.web;
     requires javafx.media;
+    requires spring.context;
 
     opens com.example.chat_frontend.DTO to com.fasterxml.jackson.databind; // Allow Jackson to access DTO
     exports com.example.chat_frontend.controller;
@@ -25,4 +26,7 @@ module com.example.chat_frontend {
     opens com.example.chat_frontend.controller to javafx.fxml;
     opens com.example.chat_frontend to javafx.fxml;
     exports com.example.chat_frontend;
+    exports com.example.chat_frontend.Model to com.fasterxml.jackson.databind;
+    exports com.example.chat_frontend.DTO.eum; // <-- THIS FIXES YOUR ISSUE
+
 }

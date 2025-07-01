@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
+
+<?import java.lang.String?>
+<VBox alignment="TOP_CENTER" maxHeight="Infinity" maxWidth="Infinity" prefHeight="718.0" prefWidth="564.0"
+      spacing="15.0" styleClass="bg-primary" VBox.vgrow="ALWAYS"
+      xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.frontend_chat.Controller.MainPageController.FriendList">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+    <Label styleClass="text-primary" text="Contacts" textFill="WHITE">
+        <font>
+            <Font name="System Bold" size="28.0" />
+        </font>
+    </Label>
+    <HBox alignment="CENTER" spacing="12.0">
+        <TextField fx:id="searchFriendField" maxWidth="Infinity" onKeyReleased="#filterFriends"
+                   prefHeight="48.0" promptText="Search contacts..." styleClass="search-input" HBox.hgrow="ALWAYS" />
+        <Button fx:id="addFriendButton" onAction="#showAddFriendPane" prefHeight="48.0" prefWidth="48.0"
+                styleClass="button-primary" text="+" />
+    </HBox>
+    <TabPane fx:id="contactTabs" maxHeight="Infinity" maxWidth="Infinity" VBox.vgrow="ALWAYS">
+        <Tab closable="false" text="Friends">
+            <ListView fx:id="friendList" maxHeight="Infinity" maxWidth="Infinity"
+                      onMouseClicked="#loadMessages" styleClass="group-list" />
+        </Tab>
+        <Tab closable="false" text="Pending Requests">
+            <ScrollPane fitToWidth="true" maxHeight="Infinity" maxWidth="Infinity">
+                <ListView fx:id="pendingRequestList" maxHeight="Infinity" maxWidth="Infinity"
+                          prefHeight="486.0" prefWidth="332.0" styleClass="group-list, pending-request-list, bg-left-sidebar" />
+            </ScrollPane>
+        </Tab>
+        <styleClass>
+            <String fx:value="modern-tabs" />
+            <String fx:value="bg-left-sidebar" />
+        </styleClass>
+    </TabPane>
+</VBox>

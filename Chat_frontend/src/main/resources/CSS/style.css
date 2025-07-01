@@ -706,4 +706,88 @@
     -fx-border-radius: 12px;
     -fx-effect: dropshadow(gaussian, rgba(52, 152, 219, 0.4), 8, 0.2, 0, 2);
     -fx-padding: 8;
+}.bg-primary {
+     -fx-background-color: #2C2F33;
+ }
+
+.text-primary {
+    -fx-text-fill: #FFFFFF;
+}
+
+.text-muted {
+    -fx-text-fill: #B0B0B0;
+}
+
+.text-tiny {
+    -fx-text-fill: #B0B0B0;
+}
+
+.search-input {
+    -fx-background-color: #3A3D41;
+    -fx-text-fill: #FFFFFF;
+    -fx-prompt-text-fill: #B0B0B0;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+}
+
+.button-primary {
+    -fx-background-color: #7289DA;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: bold;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+}
+
+.button-primary:hover {
+    -fx-background-color: #677BC4;
+}
+
+.group-list {
+    -fx-background-color: #2C2F33;
+    -fx-border-color: transparent;
+}
+
+.pending-request-list {
+    -fx-background-color: #2C2F33;
+}
+
+.modern-tabs .tab-header-background {
+    -fx-background-color: #2C2F33;
+}
+
+.modern-tabs .tab {
+    -fx-background-color: #3A3D41;
+    -fx-text-fill: #FFFFFF;
+}
+
+.modern-tabs .tab:selected {
+    -fx-background-color: #7289DA;
+}
+
+.modern-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.modern-scroll .thumb {
+    -fx-background-color: #7289DA;
+    -fx-background-radius: 5;
+}
+
+.avatar {
+    -fx-background-radius: 25;
+    -fx-border-radius: 25;
+}
+
+.chat-item {
+    -fx-background-color: #3A3D41;
+    -fx-background-radius: 5;
+}
+
+.chat-item:hover {
+    -fx-background-color: #4A4D51;
+}
+
+.chat-username {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: bold;
 }

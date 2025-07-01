@@ -1,5 +1,6 @@
 package com.example.backend_chat.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -28,8 +29,8 @@ public class Chat {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // Participants of the chat
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private Set<ChatParticipant> participants = new HashSet<>();
 
     @OneToOne(fetch = FetchType.LAZY)

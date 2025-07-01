@@ -3,7 +3,6 @@ package com.example.chat_frontend.controller;
 import com.example.chat_frontend.DTO.ContactRequest;
 import com.example.chat_frontend.DTO.ContactResponse;
 import com.example.chat_frontend.DTO.SimpleUserDTO;
-import com.example.chat_frontend.Model.UserSearchDTO;
 import com.example.chat_frontend.Notifications.NotificationHandler;
 import com.example.chat_frontend.Notifications.PopupNotificationManager;
 import com.example.chat_frontend.utils.TokenManager;

@@ -1,12 +1,13 @@
 package com.example.backend_chat.DTO;
 
+import com.example.backend_chat.model.ENUM.ContactStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -18,5 +19,7 @@ public class ContactResponse {
     @JsonProperty("contact")
     private SimpleUserDTO contact;
     @JsonProperty("status")
-    private String status;
+//    @JsonSerialize(using = ToStringSerializer.class)
+    private ContactStatus status;
+
 }

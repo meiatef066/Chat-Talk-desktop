@@ -37,5 +37,8 @@ public class Contact {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false,updatable = false)
     private LocalDateTime createdAt ;
+//    CREATE INDEX idx_user_contact ON contacts (user_id, contact_id);
+//    CREATE INDEX idx_user_status ON contacts (user_id, status);
+//    CREATE INDEX idx_contact_status ON contacts (contact_id, status);
 
 }

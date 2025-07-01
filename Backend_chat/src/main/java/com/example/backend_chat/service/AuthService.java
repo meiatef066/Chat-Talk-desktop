@@ -3,6 +3,9 @@ package com.example.backend_chat.service;
 import com.example.backend_chat.DTO.AuthResponse;
 import com.example.backend_chat.DTO.LoginRequest;
 import com.example.backend_chat.DTO.RegisterRequest;
+import com.example.backend_chat.Notification.NotificationPayload;
+import com.example.backend_chat.Notification.NotificationService;
+import com.example.backend_chat.Notification.NotificationType;
 import com.example.backend_chat.exception.EmailAlreadyExistsException;
 import com.example.backend_chat.exception.UserNotFoundException;
 import com.example.backend_chat.model.ENUM.Role;
@@ -45,7 +48,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-
+    private final NotificationService notificationService;
     // create account
     public AuthResponse createUser( RegisterRequest request ) {
         if(userRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -66,6 +69,10 @@ public class AuthService {
                 user.getUsername(), user.getPassword(), List.of(new SimpleGrantedAuthority("ROLE_USER"))
         ));
 
+        notificationService.sendToUser(user.getEmail(), NotificationPayload.builder()
+                .type(NotificationType.SYSTEM)
+                .message("Your account created successfully").build());
+
         return new AuthResponse(token);
     }
 
@@ -80,6 +87,9 @@ public class AuthService {
         }
 
         String token = jwtUtil.generateToken(user.get());
+        notificationService.sendToUser(user.get().getEmail(), NotificationPayload.builder()
+                .type(NotificationType.SYSTEM)
+                .message("welcome "+user.get().getFirstName()+"🎉").build());
         return new AuthResponse(token);
     }
 

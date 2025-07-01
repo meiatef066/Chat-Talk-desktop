@@ -17,4 +17,6 @@ public class ContactResponse {
     private SimpleUserDTO contact;
     @JsonProperty("status")
     private String status;
+
+
 }

@@ -23,4 +23,6 @@ public class SimpleUserDTO {
     private String profilePicture;
     @JsonProperty("isOnline")
     private Boolean isOnline;
+
+
 }

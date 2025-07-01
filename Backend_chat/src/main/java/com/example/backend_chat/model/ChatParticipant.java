@@ -1,6 +1,8 @@
 package com.example.backend_chat.model;
 
 import com.example.backend_chat.model.Chat;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.*;
@@ -21,6 +23,7 @@ public class ChatParticipant {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_id", nullable = false)
+    @JsonBackReference
     private Chat chat;
 
     @ManyToOne(fetch = FetchType.LAZY)

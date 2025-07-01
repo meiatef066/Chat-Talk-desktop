@@ -2,62 +2,73 @@ package com.example.backend_chat.service;
 
 import com.example.backend_chat.DTO.MessageDTO;
 import com.example.backend_chat.model.Chat;
+import com.example.backend_chat.model.ENUM.MessageType;
 import com.example.backend_chat.model.Message;
 import com.example.backend_chat.model.User;
-import com.example.backend_chat.repository.ChatParticipantRepository;
 import com.example.backend_chat.repository.ChatRepository;
 import com.example.backend_chat.repository.MessageRepository;
 import com.example.backend_chat.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class MessageService {
-
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
     private final ChatRepository chatRepository;
-    private final ChatParticipantRepository chatParticipantRepository;
-    private SimpMessagingTemplate simpMessagingTemplate;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
-    @Autowired
-    public MessageService( MessageRepository messageRepository, UserRepository userRepository, ChatRepository chatRepository, ChatParticipantRepository chatParticipantRepository, SimpMessagingTemplate simpMessagingTemplate ) {
+    public MessageService(MessageRepository messageRepository, UserRepository userRepository,
+                          ChatRepository chatRepository, SimpMessagingTemplate simpMessagingTemplate) {
         this.messageRepository = messageRepository;
         this.userRepository = userRepository;
         this.chatRepository = chatRepository;
-        this.chatParticipantRepository = chatParticipantRepository;
         this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
-    public Message sendMessage( MessageDTO messageDTO ) {
-        Chat chat = chatRepository.findById(messageDTO.getChatId()).orElseThrow(() -> new IllegalArgumentException("Chat not found"));
+    public void saveMessage( MessageDTO dto) {
+        Chat chat = chatRepository.findById(dto.getChatId())
+                .orElseThrow(() -> new IllegalArgumentException("Chat not found: " + dto.getChatId()));
+        User sender = userRepository.findByEmail(dto.getSenderEmail())
+                .orElseThrow(() -> new IllegalArgumentException("Sender not found: " + dto.getSenderEmail()));
 
-        User sender = userRepository.findByEmail(messageDTO.getSenderEmail()).orElseThrow(() -> new IllegalArgumentException("Sender not found"));
+        Message message = Message.builder()
+                .chat(chat)
+                .sender(sender)
+                .content(dto.getContent())
+                .messageType(dto.getMessageType() != null ? MessageType.valueOf(String.valueOf(dto.getMessageType())) : MessageType.TEXT)
+                .isRead(false)
+                .build();
 
-        Message message = Message.builder().chat(chat).sender(sender).content(messageDTO.getContent()).messageType(messageDTO.getMessageType()).isRead(false).build();
         Message savedMessage = messageRepository.save(message);
-
-        // update last message in chat
         chat.setLastMessage(savedMessage);
         chatRepository.save(chat);
-
-        // 🔥 Broadcast to everyone subscribed to the chat room
-        // send message to the client
-        simpMessagingTemplate.convertAndSend("/topic/chat/" + chat.getId(), message);
-
-        return savedMessage;
+        // Create a DTO to send (you may include timestamp, chatId, etc.)
+        MessageDTO outgoingDto = MessageDTO.builder()
+                .chatId(chat.getId())
+                .senderEmail(sender.getEmail())
+                .content(message.getContent())
+                .messageType(message.getMessageType())
+                .sentAt(message.getSentAt()) // add this field if needed
+                .build();
+        // Send to all participants except the sender
+        chat.getParticipants().forEach(participant -> {
+            User receiver = participant.getUser();
+            if (!receiver.getEmail().equalsIgnoreCase(sender.getEmail())) {
+                simpMessagingTemplate.convertAndSendToUser(
+                        receiver.getEmail(),
+                        "/topic/messages",
+                        outgoingDto
+                );
+            }
+        });
+//        simpMessagingTemplate.convertAndSend("/topic/messages", dto);
 
     }
 
-    public List<Message> getMessagesForChat( Long chatId ) {
+    public List<Message> getMessagesForChat( Long chatId) {
         return messageRepository.findByChatIdOrderBySentAtAsc(chatId);
     }
-
 }

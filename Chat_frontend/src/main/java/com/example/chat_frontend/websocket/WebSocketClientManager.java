@@ -1,9 +1,10 @@
 package com.example.chat_frontend.websocket;
+
+import com.example.chat_frontend.DTO.MessageDTO;
 import com.example.chat_frontend.Notifications.PopupNotificationManager;
 import com.example.chat_frontend.controller.ChatApp;
 import com.example.chat_frontend.DTO.ContactResponse;
 import com.example.chat_frontend.Notifications.NotificationHandler;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.simp.stomp.*;
@@ -13,24 +14,23 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 import org.springframework.web.socket.sockjs.client.SockJsClient;
 import org.springframework.web.socket.sockjs.client.WebSocketTransport;
-import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 
 public class WebSocketClientManager {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketClientManager.class);
-    private static final String WS_URL = "ws://localhost:8080/ws"; // Fixed to ws://
-    private static final String FRIEND_REQUEST_TOPIC = "/user/topic/friend-request";
-    private static final String FRIEND_RESPONSE_TOPIC = "/user/topic/friend-request-response";
-    private static final String MESSAGE_TOPIC = "/topic/messages"; // Added for messages
-    private static final long INITIAL_RECONNECT_DELAY = 5; // Seconds
+    private static final String WS_URL = "ws://localhost:8080/ws";
+    private static final String FRIEND_REQUEST_TOPIC = "/user/queue/friend-request";
+    private static final String FRIEND_RESPONSE_TOPIC = "/user/queue/friend-request-response";
+    private static final String MESSAGE_TOPIC = "/user/queue/messages";
+    private static final long INITIAL_RECONNECT_DELAY = 5;
     private static final int MAX_RECONNECT_ATTEMPTS = 5;
-    private static final long CONNECT_TIMEOUT = 10; // Seconds
+    private static final long CONNECT_TIMEOUT = 10;
 
     private final ChatApp chatApp;
     private final NotificationHandler notificationHandler;
@@ -116,10 +116,10 @@ public class WebSocketClientManager {
             public Type getPayloadType(StompHeaders headers) {
                 return ContactResponse.class;
             }
-
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                handlePayload(payload, FRIEND_REQUEST_TOPIC, senderEmail -> notificationHandler.displayFriendRequestNotification(String.valueOf(senderEmail)));
+                handlePayload(payload, FRIEND_REQUEST_TOPIC, response ->
+                        notificationHandler.displayFriendRequestNotification(response.getContact().getEmail()));
             }
         });
 
@@ -128,10 +128,9 @@ public class WebSocketClientManager {
             public Type getPayloadType(StompHeaders headers) {
                 return ContactResponse.class;
             }
-
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                handlePayload(payload, FRIEND_RESPONSE_TOPIC, (response) ->
+                handlePayload(payload, FRIEND_RESPONSE_TOPIC, response ->
                         notificationHandler.displayFriendResponseNotification(response.getContact().getEmail(), response.getStatus()));
             }
         });
@@ -139,13 +138,13 @@ public class WebSocketClientManager {
         session.subscribe(MESSAGE_TOPIC, new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
-                return ChatApp.MessageDTO.class;
+                return MessageDTO.class;
             }
-
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                if (payload instanceof ChatApp.MessageDTO message) {
-                    notificationHandler.displayMessageNotification("User", message.getContent());
+                if (payload instanceof MessageDTO message) {
+                    chatApp.handleIncomingMessage(message);
+                    notificationHandler.displayMessageNotification(message.getSenderEmail(), message.getContent());
                 } else {
                     logger.warn("Unexpected message payload type: {}", payload != null ? payload.getClass().getName() : "null");
                 }
@@ -158,6 +157,11 @@ public class WebSocketClientManager {
     private void handlePayload(Object payload, String topic, java.util.function.Consumer<ContactResponse> notificationAction) {
         try {
             if (payload instanceof ContactResponse response) {
+                if (response.getContact() == null) {
+                    logger.error("ContactResponse has null contact for topic {}", topic);
+                    notificationHandler.displayErrorNotification("Error", "Received invalid friend request data (missing contact)");
+                    return;
+                }
                 if (topic.equals(FRIEND_REQUEST_TOPIC)) {
                     chatApp.addIncomingRequest(response);
                 } else if (topic.equals(FRIEND_RESPONSE_TOPIC)) {
@@ -209,6 +213,7 @@ public class WebSocketClientManager {
 
         if (session != null && session.isConnected()) {
             session.disconnect();
+            session = null; // Reset session
             logger.info("Disconnected from WebSocket server");
         }
         if (stompClient != null) {

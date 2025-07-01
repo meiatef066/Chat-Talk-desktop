@@ -3,101 +3,80 @@ package com.example.backend_chat.service;
 import com.example.backend_chat.DTO.ContactRequest;
 import com.example.backend_chat.DTO.ContactResponse;
 import com.example.backend_chat.DTO.SimpleUserDTO;
-import com.example.backend_chat.exception.FriendRequestAlreadyExist;
+import com.example.backend_chat.Notification.NotificationPayload;
+import com.example.backend_chat.Notification.NotificationService;
+import com.example.backend_chat.Notification.NotificationType;
 import com.example.backend_chat.model.Contact;
 import com.example.backend_chat.model.ENUM.ContactStatus;
 import com.example.backend_chat.model.User;
 import com.example.backend_chat.repository.ContactRepository;
 import com.example.backend_chat.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
 
 @Service
 public class ContactService {
-
+    private static final Logger logger = LoggerFactory.getLogger(ContactService.class);
     private final UserRepository userRepository;
     private final ContactRepository contactRepository;
-
-    private final SimpMessagingTemplate messageTemplate;
     private final NotificationService notificationService;
-
-    @Autowired
-    public ContactService( ContactRepository contactRepository, UserRepository userRepository, SimpMessagingTemplate messageTemplate,NotificationService notificationService  ) {
+  @Autowired
+    public ContactService(ContactRepository contactRepository, UserRepository userRepository, NotificationService notificationService) {
+        this.notificationService = notificationService;
         this.contactRepository = contactRepository;
         this.userRepository = userRepository;
-        this.messageTemplate = messageTemplate;
-        this.notificationService = notificationService;
     }
 
-    public ContactResponse sendFriendRequest( ContactRequest contact ) {
+    public ContactResponse sendFriendRequest(ContactRequest contact) {
         User sender = userRepository.findByEmail(contact.getSender())
-                .orElseThrow(() -> new UsernameNotFoundException("Sender not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Sender not found"));
         User receiver = userRepository.findByEmail(contact.getReceiver())
-                .orElseThrow(() -> new UsernameNotFoundException("Receiver not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Receiver not found"));
         if (sender.equals(receiver)) {
             throw new IllegalArgumentException("Cannot send friend request to yourself.");
         }
 
         if (contactRepository.findByUserAndContact(sender, receiver).isPresent() ||
                 contactRepository.findByUserAndContact(receiver, sender).isPresent()) {
-            throw new FriendRequestAlreadyExist("Friend request already exists.");
+            throw new IllegalArgumentException("Friend request already exists.");
         }
 
-        Contact newContact = Contact.builder().user(sender).contact(receiver).status(ContactStatus.PENDING).build();
+        Contact newContact = Contact.builder()
+                .user(sender)
+                .contact(receiver)
+                .status(ContactStatus.PENDING)
+                .build();
         contactRepository.save(newContact);
-        // notify receiver via websocket real time
+
         ContactResponse contactResponse = toContactResponse(newContact);
+        notificationService.sendToUser(receiver.getEmail(), NotificationPayload.builder()
+                .message(sender.getFirstName() + " sent you a friend request")
+                .type(NotificationType.FRIEND_REQUEST)
+                .data(contactResponse)
+                .build());
 
-        messageTemplate.convertAndSendToUser(receiver.getEmail(), "/topic/friend-request", contactResponse);
-
-        System.out.println("🔔 Sending WebSocket notification to: " + receiver.getEmail());
+//        messageTemplate.convertAndSend("/topic/friend-request", contactResponse);
+        logger.info("Sent friend request from {} to {}", sender.getEmail(), receiver.getEmail());
         return contactResponse;
     }
 
-
-    public List<ContactResponse> getAcceptedRequest( String email ) {
+    public List<ContactResponse> getAcceptedRequest(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-        List<Contact> contactsAsUser = contactRepository.findByUserAndStatus(user, ContactStatus.ACCEPTED);
-        List<Contact> contactsAsContact = contactRepository.findByContactAndStatus(user, ContactStatus.ACCEPTED);
-
-        Set<User> friendUsers = new HashSet<>();
-
-        // Contacts where current user is the sender
-        for (Contact contact : contactsAsUser) {
-            friendUsers.add(contact.getContact()); // other person is contact
-        }
-
-        // Contacts where current user is the receiver
-        for (Contact contact : contactsAsContact) {
-            friendUsers.add(contact.getUser()); // other person is user
-        }
-
-        return friendUsers.stream()
-                .map(this::toSimpleUser)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + email));
+        List<SimpleUserDTO> friends = contactRepository.findAcceptedFriends(user);
+        return friends.stream()
                 .map(friend -> ContactResponse.builder()
-//                        .user(toSimpleUser(user))         // current user
-                        .contact(friend)                  // actual friend
-                        .status(ContactStatus.ACCEPTED.name())
+                        .contact(friend)
+                        .status(ContactStatus.valueOf(ContactStatus.ACCEPTED.name()))
                         .build())
                 .toList();
-    }
-
-
-    public List<ContactResponse> getRejectedRequest( Long id ) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        List<Contact> contacts = (contactRepository.findByUserAndStatus(user, ContactStatus.ACCEPTED));
-        return contacts.stream().map(this::toContactResponse).toList();
     }
 
     public List<ContactResponse> getPendingRequest( String userEmail ) {
@@ -108,15 +87,53 @@ public class ContactService {
         List<Contact> contacts = contactRepository.findByContactAndStatus(user, ContactStatus.PENDING);
         return contacts.stream().map(contact -> ContactResponse.builder()
                         .id(contact.getId())
-//                        .user(toSimpleUser(contact.getContact()))
                         .contact(toSimpleUser(contact.getUser()))
-                        .status(contact.getStatus().name())
+                        .status(contact.getStatus())
 //                        .createdAt(contact.getCreatedAt())
                         .build())
                 .toList();
     }
 
-    private SimpleUserDTO toSimpleUser( User user ) {
+    public ContactResponse respondToRequest(String from, String action) {
+        String receiverEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        logger.info("Processing friend request response for sender: {}, action: {}, receiver: {}", from, action, receiverEmail);
+
+        User sender = userRepository.findByEmail(from)
+                .orElseThrow(() -> new IllegalArgumentException("Sender not found: " + from));
+        User receiver = userRepository.findByEmail(receiverEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Receiver not found: " + receiverEmail));
+
+        Contact contact = contactRepository.findByUserAndContact(sender, receiver)
+                .orElseThrow(() -> new RuntimeException("Contact request not found for sender: " + from));
+
+        if (contact.getStatus() != ContactStatus.PENDING) {
+            throw new RuntimeException("Request already responded to: " + from);
+        }
+
+        ContactStatus newStatus = ContactStatus.valueOf(action.toUpperCase());
+        if (newStatus != ContactStatus.ACCEPTED && newStatus != ContactStatus.REJECTED) {
+            throw new IllegalArgumentException("Invalid action: " + action);
+        }
+
+        contact.setStatus(newStatus);
+        contactRepository.save(contact);
+
+        ContactResponse response = toContactResponse(contact);
+        notificationService.sendToUser(sender.getEmail(), NotificationPayload.builder()
+//                .title("Friend Request Response")
+                .message("Your request was " + newStatus.name().toLowerCase())
+                .type(newStatus == ContactStatus.ACCEPTED ? NotificationType.FRIEND_REQUEST_ACCEPTED : NotificationType.FRIEND_REQUEST_REJECTED)
+                .data(response)
+                .build());
+        logger.info("Sent response {} to {}", newStatus, from);
+
+        if (newStatus == ContactStatus.REJECTED) {
+            contactRepository.delete(contact);
+        }
+        return response;
+    }
+
+    private SimpleUserDTO toSimpleUser(User user) {
         return SimpleUserDTO.builder()
                 .id(user.getId())
                 .firstName(user.getFirstName())
@@ -127,66 +144,54 @@ public class ContactService {
                 .build();
     }
 
-    private ContactResponse toContactResponse( Contact contact ) {
+    private ContactResponse toContactResponse(Contact contact) {
         return ContactResponse.builder()
                 .id(contact.getId())
-//                .user(toSimpleUser(contact.getUser()))
                 .contact(toSimpleUser(contact.getContact()))
-                .status(contact.getStatus().name())
-//                .createdAt(contact.getCreatedAt())
+                .status(ContactStatus.valueOf(contact.getStatus().name()))
                 .build();
     }
 
-    public void respondToRequest(String senderRequestEmail, String action) {
+    public void rejectRequest( String rejectedSenderEmail ) {
         String receiverEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        User sender = userRepository.findByEmail(senderRequestEmail)
-                .orElseThrow(() -> new UsernameNotFoundException("Sender not found"));
+        Contact contact = contactRepository.findByUserEmailAndContactEmail(rejectedSenderEmail, receiverEmail)
+                .orElseThrow(() -> new RuntimeException("Contact request not found for sender: " +rejectedSenderEmail));
 
-        User receiver = userRepository.findByEmail(receiverEmail)
-                .orElseThrow(() -> new UsernameNotFoundException("Receiver not found"));
+        contactRepository.delete(contact);
+        // notify sender with response
+        notificationService.sendToUser(rejectedSenderEmail,
+                NotificationPayload.builder()
+                        .message(rejectedSenderEmail+"reject your request 😢")
+                        .type(NotificationType.FRIEND_REQUEST_REJECTED)
+                        .build());
+        // notify receiver reject is done
+        notificationService.sendToUser(receiverEmail,
+                NotificationPayload.builder()
+                        .message("request is rejected 😢")
+                        .type(NotificationType.FRIEND_REQUEST_REJECTED)
+                        .build());
+    }
 
-        Contact contact = contactRepository.findByUserAndContact(sender, receiver)
-                .orElseThrow(() -> new RuntimeException("Contact request not found"));
+    public void acceptRequest( String acceptedSenderEmail ) {
+        String receiverEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        if (contact.getStatus() != ContactStatus.PENDING) {
-            throw new RuntimeException("Request already responded to: " + senderRequestEmail);
-        }
+        Contact contact = contactRepository.findByUserEmailAndContactEmail(acceptedSenderEmail, receiverEmail)
+                .orElseThrow(() -> new RuntimeException("Contact request not found for sender: " +acceptedSenderEmail));
 
-        ContactStatus newStatus;
-        try {
-            newStatus = ContactStatus.valueOf(action.toUpperCase());
-            if (newStatus != ContactStatus.ACCEPTED && newStatus != ContactStatus.REJECTED) {
-                throw new IllegalArgumentException("Invalid action: " + action);
-            }
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid action: " + action, e);
-        }
-
-        contact.setStatus(newStatus);
+        contact.setStatus(ContactStatus.ACCEPTED);
         contactRepository.save(contact);
-
-        // Notify sender of the response
-        messageTemplate.convertAndSendToUser(
-                senderRequestEmail,
-                "/receiver/friend-request-response",
-                toContactResponse(contact)
-        );
-
-        if (newStatus == ContactStatus.ACCEPTED) {
-            Contact reciprocalContact = Contact.builder()
-                    .user(receiver)
-                    .contact(sender)
-                    .status(ContactStatus.ACCEPTED)
-                    .build();
-            contactRepository.save(reciprocalContact);
-
-            // Notify receiver of new friendship
-            messageTemplate.convertAndSendToUser(
-                    receiver.getEmail(),
-                    "/receiver/friend-request-response",
-                    toContactResponse(reciprocalContact)
-            );
-        }
+        // notify sender with response
+        notificationService.sendToUser(acceptedSenderEmail,
+                NotificationPayload.builder()
+                        .message(acceptedSenderEmail+"accepted your request 🎉")
+                        .type(NotificationType.FRIEND_REQUEST_ACCEPTED)
+                        .build());
+        // notify receiver reject is done
+        notificationService.sendToUser(receiverEmail,
+                NotificationPayload.builder()
+                        .message("request is accepted ✅")
+                        .type(NotificationType.FRIEND_REQUEST_ACCEPTED)
+                        .build());
     }
 }

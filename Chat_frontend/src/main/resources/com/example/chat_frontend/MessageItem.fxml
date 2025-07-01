@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<HBox fx:id="messageBox" maxWidth="Infinity" style="-fx-padding: 5; -fx-spacing: 5;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.chat_frontend.controller.MessageItem">
+    <VBox maxWidth="Infinity" style="-fx-padding: 5; -fx-background-radius: 5; -fx-border-radius: 5;" HBox.hgrow="ALWAYS">
+        <Label fx:id="messageContent" style="-fx-padding: 5; -fx-font-size: 14; -fx-max-width: 400;" wrapText="true" />
+        <Label fx:id="messageTimestamp" style="-fx-font-size: 10; -fx-text-fill: gray;" />
+    </VBox>
+</HBox>

@@ -1,7 +1,7 @@
 package com.example.chat_frontend.controller;
 
 import com.example.chat_frontend.API.ChatAppApi;
-import com.example.chat_frontend.DTO.ApiResponse;
+import com.example.chat_frontend.DTO.MessageDTO;
 import com.example.chat_frontend.DTO.ContactResponse;
 import com.example.chat_frontend.DTO.SimpleUserDTO;
 import com.example.chat_frontend.Notifications.NotificationHandler;
@@ -9,6 +9,7 @@ import com.example.chat_frontend.Notifications.PopupNotificationManager;
 import com.example.chat_frontend.utils.TokenManager;
 import com.example.chat_frontend.utils.Validation;
 import com.example.chat_frontend.websocket.WebSocketClientManager;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PreDestroy;
@@ -31,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,14 +54,19 @@ public class ChatApp {
     private final ObservableList<SimpleUserDTO> friends = FXCollections.observableArrayList();
     private final ObservableList<ContactResponse> pendingRequests = FXCollections.observableArrayList();
     private final ObservableList<SimpleUserDTO> searchResults = FXCollections.observableArrayList();
-    private final ChatAppApi api = new ChatAppApi();
+
+    private final ChatAppApi api = new ChatAppApi(this);
     private WebSocketClientManager webSocketClientManager;
     private final NotificationHandler notificationHandler = new PopupNotificationManager();
+    private ObjectMapper mapper =new ObjectMapper();
+    private String selectedFriendEmail;
+    private Long currentChatId = null;
 
     @FXML
     public void initialize() {
         String token = TokenManager.getInstance().getToken();
         String email = TokenManager.getInstance().getEmail();
+
         if (!Validation.validateToken()) {
             logger.error("No token available, skipping contact fetch");
             notificationHandler.displayMessageNotification("Error", "Please log in to continue.");
@@ -88,6 +95,9 @@ public class ChatApp {
 
         pendingRequestList.setItems(pendingRequests);
         pendingRequestList.setCellFactory(_ -> createPendingRequestCell());
+
+        userSearchResults.setItems(searchResults);
+        userSearchResults.setCellFactory(_ -> createSimpleUserCell());
     }
 
     private ListCell<SimpleUserDTO> createSimpleUserCell() {
@@ -102,7 +112,7 @@ public class ChatApp {
                         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/chat_frontend/ChatUserItem.fxml"));
                         HBox cell = loader.load();
                         ChatAppUserItem controller = loader.getController();
-                        controller.setUserData(userDTO, null);
+                        controller.setUserData(userDTO, ChatApp.this);
                         setGraphic(cell);
                     } catch (Exception e) {
                         logger.error("Error loading user item: {}", e.getMessage(), e);
@@ -142,25 +152,22 @@ public class ChatApp {
             @Override
             protected Void call() {
                 try {
-                    JsonNode acceptedContacts = api.getAllAcceptedUser();
-                    JsonNode pending = api.getPendingRequests();
-                    ObjectMapper mapper = new ObjectMapper();
+                    List<ContactResponse> acceptedContacts = api.getAllAcceptedUser();
+                    List<ContactResponse> pending = api.getPendingRequests();
 
                     List<SimpleUserDTO> friendList = new ArrayList<>();
-                    for (JsonNode node : acceptedContacts) {
+                    for (ContactResponse node : acceptedContacts) {
                         friendList.add(mapper.convertValue(node.get("contact"), SimpleUserDTO.class));
                     }
 
                     List<ContactResponse> pendingList = new ArrayList<>();
-                    for (JsonNode node : pending) {
+                    for (ContactResponse node : pending) {
                         pendingList.add(mapper.convertValue(node, ContactResponse.class));
                     }
 
                     Platform.runLater(() -> {
                         friends.setAll(friendList);
                         pendingRequests.setAll(pendingList);
-                        logger.info("Loaded {} contacts", friends.size());
-                        logger.info("Loaded {} pending requests", pendingRequests.size());
                     });
                 } catch (IOException | InterruptedException e) {
                     logger.error("Error fetching contacts: {}", e.getMessage(), e);
@@ -178,58 +185,167 @@ public class ChatApp {
             if ("ACCEPTED".equalsIgnoreCase(response.getStatus())) {
                 if (friends.stream().noneMatch(f -> f.getEmail().equals(contactEmail))) {
                     friends.add(response.getContact());
-                    logger.info("Added friend: {}", contactEmail);
                 }
             }
             pendingRequests.removeIf(req -> req.getContact().getEmail().equals(contactEmail));
-            logger.info("Friend request update: {} - {}", response.getStatus(), contactEmail);
         });
     }
 
     public void addIncomingRequest(ContactResponse response) {
         Platform.runLater(() -> {
+            if (response == null || response.getContact() == null) {
+                logger.error("Invalid ContactResponse received: {}", response);
+                notificationHandler.displayErrorNotification("Error", "Received invalid friend request data.");
+                return;
+            }
             boolean alreadyExists = pendingRequests.stream()
-                    .anyMatch(req -> req.getContact().getEmail().equals(response.getContact().getEmail()));
+                    .anyMatch(req -> req.getContact() != null &&
+                            req.getContact().getEmail().equals(response.getContact().getEmail()));
             if (!alreadyExists) {
                 pendingRequests.add(response);
-                logger.info("New pending request from {}", response.getContact().getEmail());
+            }
+        });
+    }
+
+    public void handleIncomingMessage(MessageDTO message) {
+        Platform.runLater(() -> {
+            if (currentChatId != null && currentChatId.equals(message.getChatId())) {
+                addMessageToChatUI(message);
             }
         });
     }
 
     @FXML
-    public void sendMessage(ActionEvent actionEvent) {
+    public void sendMessage(ActionEvent actionEvent) throws IOException, InterruptedException {
         String message = messageInput.getText().trim();
         if (message.isEmpty()) {
-            notificationHandler.displayMessageNotification("Warning", "Message cannot be empty");
+            notificationHandler.displayErrorNotification("Warning", "Message cannot be empty");
             return;
         }
 
-        String destination = "/app/message";
-        webSocketClientManager.sendMessage(destination, new MessageDTO(message));
+        if (selectedFriendEmail == null) {
+            notificationHandler.displayErrorNotification("Error", "No friend selected.");
+            return;
+        }
+
+        if (currentChatId == null) {
+            currentChatId = getChatId(); // Cache chatId
+        }
+
+        MessageDTO msg = new MessageDTO(
+                currentChatId,
+                TokenManager.getInstance().getEmail(),
+                message,
+                Instant.now().toString(),
+                false
+        );
+
+        String destination = "/app/chat.send";
+        webSocketClientManager.sendMessage(destination, msg);
+        addMessageToChatUI(msg);
         messageInput.clear();
-        logger.info("Sent message: {}", message);
     }
 
-    public void filterFriends(KeyEvent keyEvent) {}
-    public void showAddFriendPane(ActionEvent actionEvent) {}
-    public void hideAddFriendPane(ActionEvent actionEvent) {}
-    public void loadMessages(MouseEvent event) {}
-    public void searchUsers(KeyEvent keyEvent) {}
+    private Long getChatId() throws IOException, InterruptedException {
+//        Task
+        return api.getOrCreatePrivateChat(selectedFriendEmail, TokenManager.getInstance().getEmail()).getId();
+    }
 
-    public static class MessageDTO {
-        private String content;
+    public void onFriendSelected(SimpleUserDTO friend) {
+        selectedFriendEmail = friend.getEmail();
+        friendNameLabel.setText(friend.getFirstName() + " " + friend.getLastName());
+        messageList.getChildren().clear();
+        currentChatId = null; // reset to refetch
 
-        public MessageDTO(String content) {
-            this.content = content;
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                currentChatId = getChatId();
+                List<MessageDTO> messages = api.getChatMessages(currentChatId);
+
+                Platform.runLater(() -> {
+                    for (MessageDTO msg : messages) {
+                        addMessageToChatUI(msg);
+                    }
+                });
+                return null;
+            }
+        };
+        new Thread(task).start();
+    }
+
+    private void addMessageToChatUI(MessageDTO msg) {
+        Label label = new Label(msg.getSenderEmail() + ": " + msg.getContent());
+        label.setWrapText(true);
+        label.setStyle(msg.getSenderEmail().equals(TokenManager.getInstance().getEmail())
+                ? "-fx-background-color: #cce5ff; -fx-padding: 8px; -fx-background-radius: 8px;"
+                : "-fx-background-color: #f1f0f0; -fx-padding: 8px; -fx-background-radius: 8px;");
+        messageList.getChildren().add(label);
+    }
+
+    @FXML
+    public void filterFriends(KeyEvent keyEvent) {
+        String searchText = searchFriendField.getText().toLowerCase().trim();
+        if (searchText.isEmpty()) {
+            friendList.setItems(friends);
+        } else {
+            ObservableList<SimpleUserDTO> filtered = FXCollections.observableArrayList();
+            for (SimpleUserDTO friend : friends) {
+                String fullName = (friend.getFirstName() + " " + friend.getLastName()).toLowerCase();
+                if (fullName.contains(searchText)) {
+                    filtered.add(friend);
+                }
+            }
+            friendList.setItems(filtered);
+        }
+    }
+
+    @FXML
+    public void showAddFriendPane(ActionEvent actionEvent) {
+        rightPane.getChildren().clear();
+        rightPane.getChildren().add(addFriendPane);
+        searchUserField.clear();
+        searchResults.clear();
+    }
+
+    @FXML
+    public void hideAddFriendPane(ActionEvent actionEvent) {
+        rightPane.getChildren().clear();
+        rightPane.getChildren().add(chatWindow);
+    }
+
+    @FXML
+    public void loadMessages(MouseEvent event) {
+        SimpleUserDTO selectedFriend = friendList.getSelectionModel().getSelectedItem();
+        if (selectedFriend != null) {
+            onFriendSelected(selectedFriend);
+        }
+    }
+
+    @FXML
+    public void searchUsers(KeyEvent keyEvent) {
+        String searchText = searchUserField.getText().trim();
+        if (searchText.isEmpty()) {
+            searchResults.clear();
+            return;
         }
 
-        public String getContent() {
-            return content;
-        }
-
-        public void setContent(String content) {
-            this.content = content;
-        }
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                try {
+                    JsonNode node = api.searchUsers(searchText); // Expecting JsonNode from API
+                    ObjectMapper mapper = new ObjectMapper();
+                    List<SimpleUserDTO> results = mapper.convertValue(node, new TypeReference<List<SimpleUserDTO>>() {});
+                    Platform.runLater(() -> searchResults.setAll(results));
+                } catch (IllegalArgumentException e) {
+                    logger.error("Error deserializing users: {}", e.getMessage(), e);
+                    Platform.runLater(() ->
+                            notificationHandler.displayMessageNotification("Error", "Failed to deserialize users: " + e.getMessage()));
+                }
+                return null;
+            }
+        };
+        new Thread(task).start();
     }
 }
